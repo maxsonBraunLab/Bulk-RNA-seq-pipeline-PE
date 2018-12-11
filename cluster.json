@@ -81,22 +81,6 @@
         "c" : 1,
         "mem":5000
     },
-    "bam_statistics" :
-    {
-        "J" : "bam_statistics",
-        "e" : "logs/bam_statistics/bam_statistics_%j.err",
-        "o" : "logs/bam_statistics/bam_statistics_%j.out",
-        "c" : 1,
-        "mem":5000
-    },
-    "picard" :
-    {
-        "J" : "picard",
-        "e" : "logs/picard/picard_%j.err",
-        "o" : "logs/picard/picard_%j.out",
-        "c" : 1,
-        "mem" : 45000
-    },
     "STAR" :
     {
         "J" : "star",
@@ -223,38 +207,6 @@
         "o" : "logs/fastqscreen/fastqscreen_%j.out",
         "c" : 6,
         "mem":40000
-    },
-    "circ_star" :
-    {
-        "J" : "circ_star",
-        "e" : "logs/circ_star/circ_star%j.err",
-        "o" : "logs/circ_star/circ_star_%j.out",
-        "c" : 12,
-        "mem" : 64000
-    },
-    "bwa" :
-    {
-        "J" : "bwa",
-        "e" : "logs/bwa/bwa%j.err",
-        "o" : "logs/bwa/bwa%j.out",
-        "c" : 12,
-        "mem" : 64000
-    },
-    "ciri" :
-    {
-        "J" : "ciri",
-        "e" : "logs/ciri/ciri%j.err",
-        "o" : "logs/ciri/ciri%j.out",
-        "c" : 12,
-        "mem" : 64000
-    },
-    "ciri_junction_counts" :
-    {
-        "J" : "ciri_junction_counts",
-        "e" : "logs/ciri_junction_counts/ciri_junction_counts%j.err",
-        "o" : "logs/ciri_junction_counts/ciri_junction_counts%j.out",
-        "c" : 1,
-        "mem" : 5400
     },
     "GO" :
     {
