@@ -1,6 +1,6 @@
-# Bulk-RNA-seq-pipeline
+# Bulk-RNA-seq-pipeline-PE
 
-Pipeline to run basic RNA-seq analysis.
+Pipeline to run basic RNA-seq analysis on paired-end data.
 
 This is a package of Python and R scripts that enable reading, processing and analysis of Omics' datasets. 
 This package implements the Snakemake management workflow system and is currently implemented to work with 
