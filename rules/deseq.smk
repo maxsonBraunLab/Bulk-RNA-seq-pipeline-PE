@@ -61,6 +61,7 @@ rule deseq2:
     script:
         "../scripts/deseq2.R"
 
+
 rule GO:
     input:
         "results/diffexp/{contrast}.diffexp.tsv"
@@ -78,6 +79,7 @@ rule GO:
         "../envs/runGO.yaml"
     shell: """Rscript scripts/runGOforDESeq2.R --degFile={input} --assembly={params.assembly} --FC=2 --adjp=0.01 --printTree=1"""
 
+
 rule volcano:
     input:
         "results/diffexp/{contrast}.diffexp.tsv"
@@ -87,3 +89,30 @@ rule volcano:
        contrast = get_contrast
     shell: """Rscript scripts/RNAseq_makeVolcano.R --degFile={input} --adjp=0.01 --FC=2"""
 
+
+rule run_glimma:
+    input:
+        rds="results/diffexp/{project_id}_all.rds".format(project_id=config["project_id"])
+    output:
+        ma_plot = "results/diffexp/glimma-plots/{contrast}.ma_plot.html",
+        volcano_plot = "results/diffexp/glimma-plots/{contrast}.volcano_plot.html",
+    params:
+        contrast = get_contrast,
+        condition = config["linear_model"],
+    conda:
+        "../envs/glimma_env.yaml"
+    script:
+        "../scripts/run_glimma.R"
+
+
+rule run_glimma_mds:
+    input:
+        rds="results/diffexp/{project_id}_all.rds".format(project_id=config["project_id"])
+    output:
+        mds_plot = "results/diffexp/glimma-plots/{project_id}.mds_plot.html".format(project_id=project_id),
+    params:
+        project_id = config["project_id"],
+    conda:
+        "../envs/glimma_env.yaml"
+    script:
+        "../scripts/run_glimma_mds.R"

@@ -64,7 +64,7 @@ if(grepl('rda$|RData$',degFile)){
 if(grepl('txt$|tsv$',degFile)){
     deg <- read.delim(file=degFile,header=TRUE,sep="\t")
 }
-rownames(deg) <- sub("\\.[0-9]*","",rownames(deg))
+#rownames(deg) <- sub("\\.[0-9]*","",rownames(deg))
 
 ##---------load correct Biomart------------------------#
 if (assembly == "hg19") {
@@ -84,6 +84,12 @@ if (assembly == "hg38.90") {
     geneID2GO <- get(load("/home/groups/CEDAR/anno/biomaRt/hg38.Ens_90.biomaRt.GO.geneID2GO.RData"))
     xx <- get(load("/home/groups/CEDAR/anno/biomaRt/GO.db.Term.list.rda"))
 }
+if (assembly == "mm10") {
+    organismStr <- "mmusculus"
+    geneID2GO <- get(load("/home/groups/CEDAR/anno/biomaRt/mm10.Ens_78.biomaRt.geneAnno.Rdata.external.geneID2GO.RData"))
+    xx <- get(load("/home/groups/CEDAR/anno/biomaRt/GO.db.Term.list.rda"))
+}
+
 
 ##-----------------------------------Functions--------------------------------------#
 runGO <- function(geneList,xx=xx,otype,setName){
@@ -155,8 +161,25 @@ drawBarplot <- function(go, ontology, setName){
     }
 }
 
+
+writeGOTable <- function(geneList,xx=xx,otype,setName, geneSel){
+    fname <- paste(Dir, paste(setName, otype, "GO_consolidated.txt", sep="_"), sep="/")
+    GOData = new("topGOdata", ontology=otype, allGenes=geneList, annot = annFUN.gene2GO, gene2GO = geneID2GO, nodeSize=5, geneSel=geneSel)
+    resultFisher    <- runTest(GOData, algorithm = "classic", statistic = "fisher")
+    goresults = GenTable(GOData,classicFisher=resultFisher,topNodes=20)
+    goresults$genes <- sapply(goresults$GO.ID, function(x)
+        {
+          genes<-genesInTerm(GOData, x) 
+          genes[[1]][genes[[1]] %in% geneSel]
+        })
+     goresults$genes <-vapply(goresults$genes, paste, collapse=", ", character(1L))
+    write.table(goresults, file=fname, sep="\t", col.names=TRUE, quote=FALSE, row.names=FALSE)
+}
+
+
 print("get up genes and make geneList")
 up <- deg$padj < adjp & deg$log2FoldChange >= log2(FC)
+up[is.na(up)] <- FALSE
 up <- unique(rownames(deg[up,]))
 all <-unique(names(geneID2GO))
 up.geneList <-  factor(as.integer(all %in% up))
@@ -177,13 +200,13 @@ if(!(file.exists(Dir))) {
 print("make GO table for the up genes")
 #################################
 go.UP.BP <- runGO(geneList=up.geneList,xx=xx,otype="BP",setName=paste(basename(comparison),"upFC",FC, "adjp", adjp, sep="."))
-#go.UP.MF <- runGO(geneList=up.geneList,xx=xx,otype="MF",setName=paste(comparison,"up",sep="."))
-
+writeGOTable(geneList=up.geneList,xx=xx,otype="BP",setName=paste(basename(comparison),"upFC",FC, "adjp", adjp, sep="."),geneSel=up)
 print("make the png for the up genes")
 drawBarplot(go=go.UP.BP,ontology="BP",setName=paste(basename(comparison),"upFC",FC, "adjp", adjp, sep="."))
     
 print("get down genes and make geneList")
 dn <- deg$padj < adjp & deg$log2FoldChange <= -log2(FC)
+dn[is.na(dn)] <- FALSE
 dn <- unique(rownames(deg[dn,]))
 all <-unique(names(geneID2GO))
 dn.geneList <-  factor(as.integer(all %in% dn))
@@ -195,6 +218,7 @@ dn.setsize
 
 print("make GO table for down genes")
 go.DN.BP <- runGO(geneList=dn.geneList,xx=xx,otype="BP",setName=paste(basename(comparison),"downFC",FC, "adjp", adjp, sep="."))
-
+writeGOTable(geneList=up.geneList,xx=xx,otype="BP",setName=paste(basename(comparison),"downFC",FC, "adjp", adjp, sep="."),geneSel=dn)
 print("make barplot for down genes")
 drawBarplot(go=go.DN.BP,ontology="BP",setName=paste(basename(comparison),"downFC",FC, "adjp", adjp, sep="."))
+

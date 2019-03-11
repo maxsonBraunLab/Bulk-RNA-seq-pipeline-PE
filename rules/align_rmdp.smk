@@ -1,50 +1,49 @@
-rule trimming:
+rule trim_bbduk:
     input:
-        fwd = "samples/raw/{sample}_R1.fq.gz",
-        rev = "samples/raw/{sample}_R2.fq.gz"
+        fwd = "samples/raw/{sample}_R1.fastq.gz",
+        rev = "samples/raw/{sample}_R2.fastq.gz"
     output:
-        fwd_P = "samples/trimmed/{sample}_R1_P_t.fq",
-        fwd_UP = "samples/trimmed/{sample}_R1_UP_t.fq",
-        rev_P = "samples/trimmed/{sample}_R2_P_t.fq",
-        rev_UP = "samples/trimmed/{sample}_R2_UP_t.fq"
+        fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
+        rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz",
     params:
-        adapter=config["adapter-PE"]
-    log:
-        "logs/trimming/{sample}_trimming.log"
-    conda:
-        "../envs/trim.yaml"
+        ref=config["bb_adapter"]
     message:
         """--- Trimming."""
     shell:
-        """trimmomatic PE -trimlog {log} {input.fwd} {input.rev} {output.fwd_P} {output.fwd_UP} {output.rev_P} {output.rev_UP} ILLUMINACLIP:{params.adapter}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36"""
+        """bbduk.sh -Xmx1g in1={input.fwd} in2={input.rev} out1={output.fwd} out2={output.rev} minlen=25 qtrim=rl trimq=10 ktrim=r k=25 mink=11 ref={params.ref} hdist=1"""
 
-rule fastqc:
+
+rule afterqc_filter:
     input:
-        fwd = "samples/trimmed/{sample}_R1_P_t.fq",
-        rev = "samples/trimmed/{sample}_R2_P_t.fq"
+        fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
+        rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz"
     output:
-        fwd = "samples/fastqc/{sample}/{sample}_R1_P_t_fastqc.zip",
-        rev = "samples/fastqc/{sample}/{sample}_R2_P_t_fastqc.zip"
-    log:
-        "logs/fastqc/{sample}_fastqc.log"
-    conda:
-        "../envs/fastqc.yaml"
+        "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
+        "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz",
+        "samples/bbduk/{sample}/bad/{sample}_R1_t.bad.fq.gz",
+        "samples/bbduk/{sample}/bad/{sample}_R2_t.bad.fq.gz",
+        "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.html",
+        "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.json",
+
     message:
-        """--- Quality check of raw data with Fastqc."""
+        """---AfterQC"""
+    conda:
+        "../envs/afterqc.yaml"
     shell:
-        """fastqc --outdir samples/fastqc/{wildcards.sample} --extract  -f fastq {input.fwd} {input.rev}"""
+        """after.py -1 {input.fwd} -2 {input.rev} --report_output_folder=samples/bbduk/{wildcards.sample}/QC/ -g samples/bbduk/{wildcards.sample}/good/ -b samples/bbduk/{wildcards.sample}/bad/"""
+
 
 rule fastqscreen:
     input:
-        fwd = "samples/trimmed/{sample}_R1_P_t.fq",
-        rev = "samples/trimmed/{sample}_R2_P_t.fq"
+        fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
+        rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
     output:
-        "samples/fastqscreen/{sample}/{sample}_R1_P_t_screen.html",
-        "samples/fastqscreen/{sample}/{sample}_R1_P_t_screen.png",
-        "samples/fastqscreen/{sample}/{sample}_R1_P_t_screen.txt",
-        "samples/fastqscreen/{sample}/{sample}_R2_P_t_screen.html",
-        "samples/fastqscreen/{sample}/{sample}_R2_P_t_screen.png",
-        "samples/fastqscreen/{sample}/{sample}_R2_P_t_screen.txt"
+        "samples/fastqscreen/{sample}/{sample}_R1_t.good_screen.html",
+        "samples/fastqscreen/{sample}/{sample}_R1_t.good_screen.png",
+        "samples/fastqscreen/{sample}/{sample}_R1_t.good_screen.txt",
+        "samples/fastqscreen/{sample}/{sample}_R2_t.good_screen.html",
+        "samples/fastqscreen/{sample}/{sample}_R2_t.good_screen.png",
+        "samples/fastqscreen/{sample}/{sample}_R2_t.good_screen.txt"
     params:
         conf = config["conf"]
     conda:
@@ -52,10 +51,26 @@ rule fastqscreen:
     shell:
         """fastq_screen --aligner bowtie2 --conf {params.conf} --outdir samples/fastqscreen/{wildcards.sample} {input.fwd} {input.rev}"""
 
+
+rule fastqc:
+    input:
+        fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
+        rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
+    output:
+        fwd = "samples/fastqc/{sample}/{sample}_R1_t_fastqc.zip",
+        rev = "samples/fastqc/{sample}/{sample}_R2_t_fastqc.zip"
+    conda:
+        "../envs/fastqc.yaml"
+    message:
+        """--- Quality check of raw data with Fastqc."""
+    shell:
+        """fastqc --outdir samples/fastqc/{wildcards.sample} --extract  -f fastq {input.fwd} {input.rev}"""
+
+
 rule STAR:
     input:
-        fwd = "samples/trimmed/{sample}_R1_P_t.fq",
-        rev = "samples/trimmed/{sample}_R2_P_t.fq"
+        fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
+        rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
     output:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam",
         "samples/star/{sample}_bam/ReadsPerGene.out.tab",
@@ -63,8 +78,6 @@ rule STAR:
     threads: 12
     params:
         gtf=config["gtf_file"]
-    log:
-        "logs/star/{sample}_star.log"
     run:
          STAR=config["star_tool"],
          pathToGenomeIndex = config["star_index"]
@@ -76,9 +89,10 @@ rule STAR:
                 --sjdbGTFfile {params.gtf} --quantMode GeneCounts \
                 --sjdbGTFtagExonParentGene gene_name \
                 --outSAMtype BAM SortedByCoordinate \
-                #--readFilesCommand zcat \
+                --readFilesCommand zcat \
                 --twopassMode Basic
                 """)
+
 
 rule index:
     input:
@@ -90,6 +104,7 @@ rule index:
     shell:
         """samtools index {input} {output}"""
 
+
 rule star_statistics:
     input:
         expand("samples/star/{sample}_bam/Log.final.out",sample=SAMPLES)
@@ -97,6 +112,18 @@ rule star_statistics:
         "results/tables/{project_id}_STAR_mapping_statistics.txt".format(project_id = config["project_id"])
     script:
         "../scripts/compile_star_log.py"
+
+
+rule samtools_stats:
+    input:
+        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
+    output:
+        "samples/samtools_stats/{sample}.txt"
+    conda:
+        "../envs/omic_qc_wf.yaml"
+    wrapper:
+        "0.17.0/bio/samtools/stats"
+
 
 rule bam_statistics:
     input:
@@ -109,6 +136,7 @@ rule bam_statistics:
 
         shell("{bamstats} -a {gtf} -i {input} -o {output} -u")
 
+
 rule get_bam_coverage:
     input:
         expand("samples/bamstats/{sample}/genome_coverage.json", sample=SAMPLES)
@@ -117,72 +145,11 @@ rule get_bam_coverage:
     script:
         "../scripts/get_coverage.py"
 
-rule genecount:
-    input:
-        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
-    output:
-        "samples/htseq_count/{sample}_htseq_gene_count.txt",
-    log:
-        "logs/genecount/{sample}_genecount.log"
-    params:
-        name = "genecount_{sample}",
-        gtf = config["gtf_file"]
-    conda:
-        "../envs/omic_qc_wf.yaml"
-    threads: 1
-    shell:
-        """
-          htseq-count \
-                -f bam \
-                -r name \
-                -s reverse \
-                -m union \
-                {input} \
-                {params.gtf} > {output}"""
 
-rule count_exons:
+rule compile_star_counts:
     input:
-        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
-    output:
-        "samples/htseq_exon_count/{sample}_htseq_exon_count.txt"
-    params:
-        exon_gtf = config["exon_gtf"]
-    conda:
-        "../envs/omic_qc_wf.yaml"
-    shell:
-        """htseq-count \
-                -f bam \
-                -m intersection-nonempty \
-                -i exon_id \
-                --additional-attr=gene_name \
-                {input} \
-                {params.exon_gtf} > {output}"""
-
-rule compile_counts:
-    input:
-        expand("samples/htseq_count/{sample}_htseq_gene_count.txt",sample=SAMPLES)
+        expand("samples/star/{sample}_bam/ReadsPerGene.out.tab",sample=SAMPLES)
     output:
         "data/{project_id}_counts.txt".format(project_id=config["project_id"])
     script:
-        "../scripts/compile_counts_table.py"
-
-
-rule compile_counts_and_stats:
-    input:
-        expand("samples/htseq_count/{sample}_htseq_gene_count.txt",sample=SAMPLES)
-    output:
-        "data/{project_id}_counts_w_stats.txt".format(project_id=config["project_id"])
-    script:
-        "../scripts/compile_counts_table_w_stats.py"
-
-
-rule compile_exon_counts:
-    input:
-        expand("samples/htseq_exon_count/{sample}_htseq_exon_count.txt", sample=SAMPLES)
-    output:
-        "data/{project_id}_exon_counts.txt".format(project_id = config["project_id"])
-    conda:
-        "../envs/junction_counts.yaml"
-    script:
-        "../scripts/compile_exon_counts.R"
-
+        "../scripts/compile_star_counts.py"

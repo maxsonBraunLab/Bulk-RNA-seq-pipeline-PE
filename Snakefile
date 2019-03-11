@@ -8,6 +8,9 @@ __license__ = "MIT"
 import datetime
 import sys
 import os
+import pandas as pd
+import json
+
 
 timestamp = ('{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now()))
 
@@ -24,12 +27,15 @@ insertion_and_clipping_prof_ext = ['r','R1.pdf','R2.pdf','xls']
 inner_distance_ext = ['_freq.txt','_plot.pdf','_plot.r','.txt']
 read_dist_ext = ['txt']
 read_gc_ext = ['.xls','_plot.r','_plot.pdf']
-circ_ext=['circrna/circularRNA_known.txt']
 
 
-# TODO generate initializing rule to automatically generate log out for all rules
+with open('cluster.json') as json_file:
+    json_dict = json.load(json_file)
 
-rule_dirs = ['fastqc','fastqscreen','star','index','bam_statistics','get_bam_coverage','genecount','count_exons','compile_counts','compile_exon_counts','trimming','insertion_profile','read_distribution','inner_distance','clipping_profile','read_GC','star_statistics','generate_qc_qa','run_qc_qa','star_statistics','deseq2','GO','volcano']
+rule_dirs = list(json_dict.keys())
+rule_dirs.pop(rule_dirs.index('__default__'))
+
+
 for rule in rule_dirs:
     if not os.path.exists(os.path.join(os.getcwd(),'logs',rule)):
         log_out = os.path.join(os.getcwd(), 'logs', rule)
@@ -70,30 +76,24 @@ for sample in SAMPLES:
 
 rule all:
     input:
-        expand("samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam", sample = SAMPLES),
-        expand("samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam.bai", sample = SAMPLES),
-        expand("samples/star/{sample}_bam/ReadsPerGene.out.tab", sample = SAMPLES),
-        expand("samples/star/{sample}_bam/Log.final.out",sample=SAMPLES),
         expand("results/tables/{project_id}_STAR_mapping_statistics.txt", project_id = config['project_id']),
-        expand("samples/bamstats/{sample}/genome_coverage.json", sample = SAMPLES),
-        "data/{project_id}_coverage.txt".format(project_id=config["project_id"]),
         expand("samples/fastqc/{sample}/{sample}_{fastq_ext}_t_fastqc.zip", sample = SAMPLES, fastq_ext = fastq_ext),
-        expand("samples/fastqscreen/{sample}/{sample}_{fastq_ext}_t_screen.{fastqscreen_ext}", sample=SAMPLES, fastq_ext=fastq_ext, fastqscreen_ext=fastqscreen_ext),
-        "data/{project_id}_counts.txt".format(project_id=config['project_id']),
-        "data/{project_id}_counts_w_stats.txt".format(project_id=config['project_id']),
+        expand("samples/fastqscreen/{sample}/{sample}_{fastq_ext}_t.good_screen.{fastqscreen_ext}", sample=SAMPLES, fastq_ext=fastq_ext, fastqscreen_ext=fastqscreen_ext),
         expand("rseqc/insertion_profile/{sample}/{sample}.insertion_profile.{ext}",sample=SAMPLES, ext=insertion_and_clipping_prof_ext),
         expand("rseqc/inner_distance/{sample}/{sample}.inner_distance{ext}", sample = SAMPLES, ext = inner_distance_ext),
         expand("rseqc/clipping_profile/{sample}/{sample}.clipping_profile.{ext}", sample = SAMPLES, ext = insertion_and_clipping_prof_ext),
         expand("rseqc/read_distribution/{sample}/{sample}.read_distribution.{ext}", sample = SAMPLES, ext = read_dist_ext),
         expand("rseqc/read_GC/{sample}/{sample}.GC{ext}", sample = SAMPLES, ext = read_gc_ext),
+        expand("samples/samtools_stats/{sample}.txt",sample=SAMPLES),
         expand("samples/htseq_count/{sample}_htseq_gene_count.txt", sample=SAMPLES),
         expand("samples/htseq_exon_count/{sample}_htseq_exon_count.txt", sample=SAMPLES),
+        "data/{project_id}_coverage.txt".format(project_id=config["project_id"]),
         "results/tables/{}_Normed_with_Ratio_and_Abundance.txt".format(config['project_id']),
         "results/diffexp/pca.pdf",
-        expand("results/diffexp/{project_id}_all.rds",project_id = config['project_id']),
-        expand(["results/diffexp/{contrast}.diffexp.tsv", "results/diffexp/{contrast}.ma_plot.pdf","results/diffexp/{contrast}.phist_plot.pdf"],contrast = config["diffexp"]["contrasts"]),
         expand(["results/diffexp/GOterms/{contrast}.diffexp.downFC.2.adjp.0.01_BP_GO.txt", "results/diffexp/GOterms/{contrast}.diffexp.upFC.2.adjp.0.01_BP_GO.txt", "results/diffexp/GOterms/{contrast}.diffexp.downFC.2.adjp.0.01.BP.pdf", "results/diffexp/GOterms/{contrast}.diffexp.upFC.2.adjp.0.01.BP.pdf","results/diffexp/GOterms/{contrast}.diffexp.downFC.2.adjp.0.01_BP_classic_5_all.pdf","results/diffexp/GOterms/{contrast}.diffexp.upFC.2.adjp.0.01_BP_classic_5_all.pdf"], contrast = config["diffexp"]["contrasts"]),
-        expand("results/diffexp/{contrast}.diffexp.01.VolcanoPlot.pdf", contrast = config["diffexp"]["contrasts"])
+        expand("results/diffexp/{contrast}.diffexp.01.VolcanoPlot.pdf", contrast = config["diffexp"]["contrasts"]),
+        expand(["results/diffexp/glimma-plots/{contrast}.ma_plot.html","results/diffexp/glimma-plots/{contrast}.volcano_plot.html"],contrast = config["diffexp"]["contrasts"]),
+        "results/diffexp/glimma-plots/{project_id}.mds_plot.html".format(project_id=project_id),
 
 include: "rules/align_rmdp.smk"
 include: "rules/omic_qc.smk"
