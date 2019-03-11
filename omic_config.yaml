@@ -1,72 +1,96 @@
+##########################################
+# Important project-specific paths/files
+##########################################
+
+# Metadata needed for differential expression analysis
 omic_meta_data:
-  /home/exacloud/lustre1/CEDAR/roskamsh/projects/Omics-QC-pipeline/data/PP_cohort_sample_info_log_JE.2018.09.28.txt
+  # tab delimited file
+  /absolute/path/to/project/meta-data.txt
+
+# Path to your base directory (path to this directory)
 base_dir:
-  /home/groups/CEDAR/roskamsh/projects/Omics-QC-pipeline
+  /base/directory/of/project
+
+##############################################################################
+# Genome and project-specific files that will change from project-to-project
+##############################################################################
+
+# GTF file for the genome build you would like to use
 gtf_file:
-  /home/exacloud/lustre1/CEDAR/anurpa/genomes/gencode.v27.annotation.gtf
+  /home/groups/CEDAR/estabroj/indexes/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/genes.gtf
+
+# Bed file for rseqc function read_distribution
 bed_file:
-  /home/exacloud/lustre1/CEDAR/roskamsh/projects/Omics-QC-pipeline/data/gencode_v27.bed
-exon_gtf:
-  /home/exacloud/lustre1/CEDAR/anurpa/genomes/gencode.housekeeping_genes.exon.gtf
-adapter-PE:
-  /home/exacloud/lustre1/CEDAR/roskamsh/projects/Omics-QC-pipeline/data/TruSeq2-PE.fa
-adapter-SE:
-  /home/exacloud/lustre1/CEDAR/roskamsh/projects/Omics-QC-pipeline/data/TruSeq2-SE.fa
-anno-hg19:
-  /home/groups/CEDAR/anno/biomaRt/hg19.Ens_75.biomaRt.GO.geneID2GO.RData
-anno-hg38.89:
-  /home/groups/CEDAR/anno/biomaRt/hg38.Ens_89.biomaRt.GO.geneID2GO.RData
-anno-hg38.90:
-  /home/groups/CEDAR/anno/biomaRt/hg38.Ens_90.biomaRt.GO.geneID2GO.RData
-GO_Term_list:
-  /home/groups/CEDAR/anno/biomaRt/GO.db.Term.list.rda
+  /home/groups/CEDAR/estabroj/beta4/data/mm10_MGC_gene.bed
+
+# Pre-built STAR index
+star_index:
+  /home/groups/CEDAR/estabroj/indexes/Mus_musculus/UCSC/mm10/Sequence/Star2Index
+
+
+####################################################################
+# Tool-specific files that will not change from project-to-project
+####################################################################
+
+# Fasta file including Illumina adapters to be trimmed out via bbduk
+bb_adapter:
+  /home/exacloud/lustre1/CompBio/estabroj/data/snakemake/projects/beta4/data/adapters.fa
+
+# Pre-built genome indexes for various organisms which we will screen against to look for contamination
 conf:
   /home/groups/CEDAR/tools/FastQ_Screen_Genomes/fastq_screen.conf
-#path to tools
+
+# Paths to various tools which are used in this pipeline
 star_tool:
-  /home/exacloud/lustre1/CEDAR/tools/STAR/tags/2.5.3a/bin/Linux_x86_64/STAR
-picard_tool:
-  /home/exacloud/lustre1/CEDAR/tools/picard-tools-1.119/MarkDuplicates.jar
-bamstats_tool:
-  /home/groups/CEDAR/roskamsh/tools/bamstats_bin/bamstats
-genome:
-  /home/exacloud/lustre1/CEDAR/anurpa/genomes/GRCh38.primary_assembly.genome.fa
-refflat2:
-  /home/exacloud/lustre1/CEDAR/Genomes/gencode27_refflat2.txt
-star_index:
-  /home/exacloud/lustre1/CEDAR/anurpa/genomes/
+  /home/groups/CEDAR/tools/STAR/tags/2.5.3a/bin/Linux_x86_64/STAR
+
+
+##############################################################################################
+# Project-specific specifications you will need to make prior to submission of the pipeline
+##############################################################################################
+
+# Unique project identifier which will be concatenated onto your counts table file name.
 project_id:
-  Bulk-RNA-seq_12_11
+  {project-id}
+
+# Genome assembly used for GO analysis, format must be as below, with the genome assembly first, and the version of ensembl second, separated by a period.
 assembly:
-  hg38.90
+  mm10
+
+# The "baseline" used for your differential expression analysis. Ex: Healthy, WT, etc.
 baseline:
-  HD
+  #Baseline for linear model - needs to be a factor in column listed for : linear_model
+  38-KC
+
+# The column name of the characteristic you would like to do DE on. Example: Diagnosis, genotype, etc. This must be a column in your omic_meta_data.
 linear_model:
-  Type
-seq_layout:
-  PE
+  #Column name in meta data file to generate contrasts by
+  Condition
+
+# The column name in which your sampleIDs are defined in omic_meta_data. These should match the sampleIDs in your fastq files.
 sample_id:
-  StudyID
-dds_design:
+  #Column name listing unique sample ids to be used. This needs to be the first column in the meta data file
   SampleID
-rseqc_env:
-  source activate rseqc-omic-wf
+
+# The column names in your omic_meta_data file which you would like to annotate your heatmaps by. This is used as a QC to look for batch effects. Enter columns which could potentially introduce a batch effect in your data.
 meta_columns_to_plot:
-  Type: Type
-  Notes: Notes
-  RNA_extraction_date: RNA_extraction_date
-diffexp:
-  # contrasts for the deseq2 results method
-  contrasts:
-    #HD-vs-MM:
-    #  - HD
-    #  - MM
-    HD-vs-LCx:
-      - HD
-      - LCx
+  Time: Time
+  Condition: Condition
+  Lane: Lane
+
 pca:
   labels:
-    # columns of sample sheet to use for PCA
-    - Type
-# path or URL to sample sheet (TSV format, columns: sample, condition, ...)
-samples: /home/exacloud/lustre1/CEDAR/roskamsh/projects/Omics-QC-pipeline/data/PP_cohort_sample_info_log_JE.2018.09.28.txt
+    #Column name in meta data file to generate group files and comparisons
+    - Condition
+
+diffexp:
+  # contrasts to generate group files and perform comparisons
+  contrasts:
+    # baseline-vs-contrast:
+    #   - contrast
+    #   - baseline
+
+    38-KC-vs-38-KC-B4:
+      - 38-KC-B4
+      - 38-KC
+
