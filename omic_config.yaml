@@ -62,6 +62,9 @@ baseline:
   #Baseline for linear model - needs to be a factor in column listed for : linear_model
   38-KC
 
+seq_layout:
+  PE
+
 # The column name of the characteristic you would like to do DE on. Example: Diagnosis, genotype, etc. This must be a column in your omic_meta_data.
 linear_model:
   #Column name in meta data file to generate contrasts by

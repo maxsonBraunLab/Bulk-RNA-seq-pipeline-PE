@@ -16,12 +16,12 @@ timestamp = ('{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now()))
 
 configfile:"omic_config.yaml"
 project_id = config["project_id"]
-rseqqc_env = config["rseqc_env"]
 
-SAMPLES, = glob_wildcards("samples/raw/{sample}_R1.fq.gz")
+
+SAMPLES, = glob_wildcards("samples/raw/{sample}_R1.fastq.gz")
 
 ext = ['r','R1.pdf','R2.pdf','xls']
-fastq_ext = ['R1_P','R2_P']
+fastq_ext = ['R1','R2']
 fastqscreen_ext = ['html','png','txt']
 insertion_and_clipping_prof_ext = ['r','R1.pdf','R2.pdf','xls']
 inner_distance_ext = ['_freq.txt','_plot.pdf','_plot.r','.txt']
@@ -62,7 +62,7 @@ def format_plot_columns():
 
 def get_deseq2_threads(wildcards=None):
     few_coeffs = False if wildcards is None else len(get_contrast(wildcards)) < 10
-    return 1 if len(config["samples"]) < 100 or few_coeffs else 6
+    return 1 if len(config["omic_meta_data"]) < 100 or few_coeffs else 6
 
 
 def get_contrast(wildcards):
@@ -79,14 +79,13 @@ rule all:
         expand("results/tables/{project_id}_STAR_mapping_statistics.txt", project_id = config['project_id']),
         expand("samples/fastqc/{sample}/{sample}_{fastq_ext}_t_fastqc.zip", sample = SAMPLES, fastq_ext = fastq_ext),
         expand("samples/fastqscreen/{sample}/{sample}_{fastq_ext}_t.good_screen.{fastqscreen_ext}", sample=SAMPLES, fastq_ext=fastq_ext, fastqscreen_ext=fastqscreen_ext),
+        expand("samples/samtools_stats/{sample}.txt",sample=SAMPLES),
         expand("rseqc/insertion_profile/{sample}/{sample}.insertion_profile.{ext}",sample=SAMPLES, ext=insertion_and_clipping_prof_ext),
         expand("rseqc/inner_distance/{sample}/{sample}.inner_distance{ext}", sample = SAMPLES, ext = inner_distance_ext),
         expand("rseqc/clipping_profile/{sample}/{sample}.clipping_profile.{ext}", sample = SAMPLES, ext = insertion_and_clipping_prof_ext),
         expand("rseqc/read_distribution/{sample}/{sample}.read_distribution.{ext}", sample = SAMPLES, ext = read_dist_ext),
         expand("rseqc/read_GC/{sample}/{sample}.GC{ext}", sample = SAMPLES, ext = read_gc_ext),
         expand("samples/samtools_stats/{sample}.txt",sample=SAMPLES),
-        expand("samples/htseq_count/{sample}_htseq_gene_count.txt", sample=SAMPLES),
-        expand("samples/htseq_exon_count/{sample}_htseq_exon_count.txt", sample=SAMPLES),
         "data/{project_id}_coverage.txt".format(project_id=config["project_id"]),
         "results/tables/{}_Normed_with_Ratio_and_Abundance.txt".format(config['project_id']),
         "results/diffexp/pca.pdf",
