@@ -9,6 +9,8 @@ rule trim_bbduk:
         ref=config["bb_adapter"]
     message:
         """--- Trimming."""
+    conda:
+        "../envs/bbmap.yaml"
     shell:
         """bbduk.sh -Xmx1g in1={input.fwd} in2={input.rev} out1={output.fwd} out2={output.rev} minlen=25 qtrim=rl trimq=10 ktrim=r k=25 mink=11 ref={params.ref} hdist=1"""
 
@@ -149,6 +151,8 @@ rule get_bam_coverage:
 rule compile_star_counts:
     input:
         expand("samples/star/{sample}_bam/ReadsPerGene.out.tab",sample=SAMPLES)
+    params:
+        samples=SAMPLES
     output:
         "data/{project_id}_counts.txt".format(project_id=config["project_id"])
     script:
