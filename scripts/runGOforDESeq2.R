@@ -64,7 +64,6 @@ if(grepl('rda$|RData$',degFile)){
 if(grepl('txt$|tsv$',degFile)){
     deg <- read.delim(file=degFile,header=TRUE,sep="\t")
 }
-#rownames(deg) <- sub("\\.[0-9]*","",rownames(deg))
 
 ##---------load correct Biomart------------------------#
 if (assembly == "hg19") {
