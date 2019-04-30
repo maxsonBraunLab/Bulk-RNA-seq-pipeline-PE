@@ -1,4 +1,3 @@
-
 rule insertion_profile:
     input:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
@@ -13,7 +12,6 @@ rule insertion_profile:
         "../envs/rseqc.yaml"
     shell:
         "insertion_profile.py -s '{params.seq_layout}' -i {input} -o rseqc/insertion_profile/{wildcards.sample}/{wildcards.sample}"
-
 
 rule inner_distance:
     input:
@@ -30,7 +28,6 @@ rule inner_distance:
     shell:
         "inner_distance.py -i {input} -o rseqc/inner_distance/{wildcards.sample}/{wildcards.sample} -r {params.bed}"
 
-
 rule clipping_profile:
     input:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
@@ -46,7 +43,6 @@ rule clipping_profile:
     shell:
         "clipping_profile.py -i {input} -s '{params.seq_layout}' -o rseqc/clipping_profile/{wildcards.sample}/{wildcards.sample}"
 
-
 rule read_distribution:
     input:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
@@ -58,7 +54,6 @@ rule read_distribution:
         "../envs/rseqc.yaml"
     shell:
         "read_distribution.py -i {input} -r {params.bed} > {output}"
-
 
 rule read_GC:
     input:
@@ -72,31 +67,3 @@ rule read_GC:
     shell:
         "read_GC.py -i {input} -o rseqc/read_GC/{wildcards.sample}/{wildcards.sample}"
 
-
-rule generate_qc_qa:
- input:
-    counts = "data/{project_id}_counts.txt".format(project_id=config['project_id'])
- params:
-    project_id = config["project_id"],
-    datadir = config['base_dir'],
-    meta = config["omic_meta_data"],
-    baseline = config["baseline"],
-    linear_model = config["linear_model"],
-    sample_id = config["sample_id"],
-    gtf_file = config["gtf_file"],
-    meta_viz = format_plot_columns(),
- output:
-    "analysis_code/{project_id}_analysis.R".format(project_id=project_id)
- shell:
-    "python GenerateAbundanceFile.py -d {params.datadir} -mf {params.meta} -p {params.project_id} -b {params.baseline} -lm {params.linear_model} -id '{params.sample_id}' -pl '{params.meta_viz}' -g '{params.gtf_file}' -df -da {input.counts}"
-
-
-rule run_qc_qa:
-    input:
-        rules.generate_qc_qa.output
-    output:
-        "results/tables/{project_id}_Normed_with_Ratio_and_Abundance.txt".format(project_id=config['project_id'])
-    conda:
-        "../envs/omic_qc_wf.yaml"
-    shell:
-        "Rscript analysis_code/{project_id}_analysis.R".format(project_id=config['project_id'])
