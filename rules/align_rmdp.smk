@@ -14,7 +14,6 @@ rule trim_bbduk:
     shell:
         """bbduk.sh -Xmx1g in1={input.fwd} in2={input.rev} out1={output.fwd} out2={output.rev} minlen=25 qtrim=rl trimq=10 ktrim=r k=25 mink=11 ref={params.ref} hdist=1"""
 
-
 rule afterqc_filter:
     input:
         fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
@@ -33,7 +32,6 @@ rule afterqc_filter:
         "../envs/afterqc.yaml"
     shell:
         """after.py -1 {input.fwd} -2 {input.rev} --report_output_folder=samples/bbduk/{wildcards.sample}/QC/ -g samples/bbduk/{wildcards.sample}/good/ -b samples/bbduk/{wildcards.sample}/bad/"""
-
 
 rule fastqscreen:
     input:
@@ -68,7 +66,6 @@ rule fastqc:
     shell:
         """fastqc --outdir samples/fastqc/{wildcards.sample} --extract  -f fastq {input.fwd} {input.rev}"""
 
-
 rule STAR:
     input:
         fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
@@ -95,7 +92,6 @@ rule STAR:
                 --twopassMode Basic
                 """)
 
-
 rule index:
     input:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
@@ -106,7 +102,6 @@ rule index:
     shell:
         """samtools index {input} {output}"""
 
-
 rule star_statistics:
     input:
         expand("samples/star/{sample}_bam/Log.final.out",sample=SAMPLES)
@@ -114,18 +109,6 @@ rule star_statistics:
         "results/tables/{project_id}_STAR_mapping_statistics.txt".format(project_id = config["project_id"])
     script:
         "../scripts/compile_star_log.py"
-
-
-rule samtools_stats:
-    input:
-        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
-    output:
-        "samples/samtools_stats/{sample}.txt"
-    conda:
-        "../envs/omic_qc_wf.yaml"
-    wrapper:
-        "0.17.0/bio/samtools/stats"
-
 
 rule bam_statistics:
     input:
@@ -137,7 +120,6 @@ rule bam_statistics:
         gtf = config["gtf_file"]
 
         shell("{bamstats} -a {gtf} -i {input} -o {output} -u")
-
 
 rule get_bam_coverage:
     input:
@@ -157,3 +139,15 @@ rule compile_star_counts:
         "data/{project_id}_counts.txt".format(project_id=config["project_id"])
     script:
         "../scripts/compile_star_counts.py"
+
+rule filter_counts:
+    input:
+        countsFile="data/{project_id}_counts.txt".format(project_id=config["project_id"])
+    output:
+        "data/{project_id}_counts.filt.txt".format(project_id=config["project_id"])
+    params:
+        anno=config["filter_anno"],
+        biotypes=config["biotypes"],
+        mito=config['mito']
+    script:
+        "../scripts/RNAseq_filterCounts.R"
