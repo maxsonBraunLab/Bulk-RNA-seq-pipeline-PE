@@ -32,7 +32,7 @@ subdata <- subdata[,order(colnames(subdata))]
 
 # Extract only the Types that we want in further analysis & only the PP_ID and Status informative columns
 md <- select(md, sampleID, Type)
-md <- filter(md, !!as.name(Type) == baseline | !!as.name(Type) == target)
+md <- filter(md, !!as.name(Type) == baseline | !!as.name(Type) == target, !!as.name(sampleID) %in% colnames(subdata))
 
 # Keep only the PP_IDs of the types we have chosen in the metadata table above
 rownames(md) <- md[[sampleID]]
@@ -42,7 +42,7 @@ subdata <- subdata[, keep]
 dim(subdata)
 
 # Check
-stopifnot(md[[sampleID]]==colnames(subdata))
+stopifnot(rowames(md)==colnames(subdata))
 
 # Get the number of Cancer samples and number of HD samples from md table
 num1 = sum(md[[Type]] == baseline)
