@@ -23,6 +23,9 @@ biotypes:
 ####################################################################
 
 # Fasta file including the illumina adapters to be trimmed out via Trimmomatic
+bb_adapter:
+  data/adapters.fa
+
 adapter:
   resources/TruSeq2-SE.fa
 # Pre-built genome indexes for various organisms which we will screen against to look for contamination
