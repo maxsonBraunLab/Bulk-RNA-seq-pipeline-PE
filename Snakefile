@@ -84,7 +84,6 @@ rule all:
         expand("rseqc/clipping_profile/{sample}/{sample}.clipping_profile.{ext}", sample = SAMPLES, ext = insertion_and_clipping_prof_ext),
         expand("rseqc/read_distribution/{sample}/{sample}.read_distribution.{ext}", sample = SAMPLES, ext = read_dist_ext),
         expand("rseqc/read_GC/{sample}/{sample}.GC{ext}", sample = SAMPLES, ext = read_gc_ext),
-        "data/{project_id}_coverage.txt".format(project_id=config["project_id"]),
         expand("results/diffexp/pairwise/{contrast}.pca_plot.pdf", contrast = config["diffexp"]["contrasts"]),
         "results/diffexp/group/LRT_pca.pdf",
         "results/diffexp/group/MDS_table.txt",
