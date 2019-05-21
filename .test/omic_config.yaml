@@ -25,7 +25,6 @@ biotypes:
 # Fasta file including the illumina adapters to be trimmed out via Trimmomatic
 bb_adapter:
   data/adapters.fa
-
 adapter:
   resources/TruSeq2-SE.fa
 # Pre-built genome indexes for various organisms which we will screen against to look for contamination
@@ -71,6 +70,8 @@ FC:
 #FDR adjusted p-value cutoff for GO analysis
 adjp:
   0.01
+seq_layout:
+  PE
 baseline:
   WT
 # The column name of the characteristic you would like to do DE on. Example: Diagnosis, genotype, etc. This must be a column in your omic_meta_data.
