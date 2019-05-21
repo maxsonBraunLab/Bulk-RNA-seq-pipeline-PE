@@ -110,25 +110,6 @@ rule star_statistics:
     script:
         "../scripts/compile_star_log.py"
 
-rule bam_statistics:
-    input:
-        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
-    output:
-        "samples/bamstats/{sample}/genome_coverage.json"
-    run:
-        bamstats=config["bamstats_tool"]
-        gtf = config["gtf_file"]
-
-        shell("{bamstats} -a {gtf} -i {input} -o {output} -u")
-
-rule get_bam_coverage:
-    input:
-        expand("samples/bamstats/{sample}/genome_coverage.json", sample=SAMPLES)
-    output:
-        "data/{project_id}_coverage.txt".format(project_id=config["project_id"])
-    script:
-        "../scripts/get_coverage.py"
-
 
 rule compile_star_counts:
     input:
