@@ -50,22 +50,6 @@
         "c" : 1,
         "mem" : 45000
     },
-    "bam_statistics" :
-    {
-        "J" : "bam_statistics",
-        "e" : "logs/{rule}/{rule}_%j.err",
-        "o" : "logs/{rule}/{rule}_%j.out",
-        "c" : 1,
-        "mem" : 45000
-    },
-    "get_bam_coverage" :
-    {
-        "J" : "get_bam_coverage",
-        "e" : "logs/{rule}/{rule}_%j.err",
-        "o" : "logs/{rule}/{rule}_%j.out",
-        "c" : 1,
-        "mem" : 45000
-    },
     "star_statistics" :
     {
         "J" : "star_statistics",
