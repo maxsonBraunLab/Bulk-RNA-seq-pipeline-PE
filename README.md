@@ -1,4 +1,5 @@
-![Snakemake](https://img.shields.io/badge/snakemake-≥5.2.1-brightgreen.svg)[![Build Status](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE.svg?branch=master)](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE)# Bulk-RNA-seq-pipeline-PE
+![Snakemake](https://img.shields.io/badge/snakemake-≥5.2.1-brightgreen.svg)[![Build Status](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE.svg?branch=master)](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE)
+# Bulk-RNA-seq-pipeline-PE
 
 Pipeline to run basic RNA-seq analysis on paired-end data.
 
