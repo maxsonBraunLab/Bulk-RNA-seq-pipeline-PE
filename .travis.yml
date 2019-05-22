@@ -3,7 +3,8 @@ python:
   # We don't actually use the Travis Python, but this keeps it organized.
   - "3.6"
 before_install:
-  - cp .test/data/TravisCI_counts.txt ./data
+  - mkdir data
+  - cp /home/travis/build/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE/.test/data/TravisCI_counts.txt /home/travis/build/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE/data
   - ls *
   - ls */*
   - pwd
