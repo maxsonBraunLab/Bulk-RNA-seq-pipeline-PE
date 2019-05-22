@@ -42,7 +42,7 @@ subdata <- subdata[, keep]
 dim(subdata)
 
 # Check
-stopifnot(rowames(md)==colnames(subdata))
+stopifnot(rownames(md)==colnames(subdata))
 
 # Get the number of Cancer samples and number of HD samples from md table
 num1 = sum(md[[Type]] == baseline)
