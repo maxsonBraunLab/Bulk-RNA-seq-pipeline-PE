@@ -20,7 +20,7 @@ filter_anno:
 
 # Fasta file including Illumina adapters to be trimmed out via bbduk
 bb_adapter:
-  /home/exacloud/lustre1/CompBio/estabroj/data/snakemake/projects/beta4/data/adapters.fa
+  ./data/adapters.fa
 # Pre-built genome indexes for various organisms which we will screen against to look for contamination
 conf:
   /home/groups/CEDAR/tools/FastQ_Screen_Genomes/fastq_screen.conf

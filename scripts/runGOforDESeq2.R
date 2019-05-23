@@ -45,8 +45,7 @@ if (assembly == "hg38.90") {
 }
 if (assembly == "mm10") {
     organismStr <- "mmusculus"
-    ### to get to hg38 mappings ensembl 90!
-    geneID2GO <- get(load("./anno/biomaRt/hg38.Ens_90.biomaRt.GO.external.geneID2GO.RData"))
+    geneID2GO <- get(load("./anno/biomaRt/mm10.Ens_78.biomaRt.geneAnno.Rdata.external.geneID2GO.RData"))
     xx <- get(load("./anno/biomaRt/GO.db.Term.list.rda"))
 }
 
