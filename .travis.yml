@@ -2,12 +2,6 @@ language: python
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
   - "3.6"
-before_install:
-  - mkdir data
-  - cp /home/travis/build/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE/.test/data/TravisCI_counts.txt /home/travis/build/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE/data
-  - ls *
-  - ls */*
-  - pwd
 
 install:
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
