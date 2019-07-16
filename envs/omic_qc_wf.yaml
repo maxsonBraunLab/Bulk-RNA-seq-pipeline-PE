@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - r
   - bioconda
+  - anaconda
 dependencies:
   - bbmap=38.20
   - bcftools=1.3.1
@@ -93,11 +94,9 @@ dependencies:
   - icu=54.1
   - intel-openmp=2018.0.3
   - jinja2=2.10
-  - libgcc=7.2.0
-  - libgcc-ng=7.2.0
-  - libgfortran-ng=7.2.0
+  - libgcc
+  - libgfortran-ng
   - libiconv=1.14
-  - libstdcxx-ng=7.2.0
   - libxml2=2.9.4
   - markupsafe=1.0
   - matplotlib=1.5.1
