@@ -19,7 +19,7 @@ dependencies:
   - icu=58.2
   - jpeg=9c
   - libffi=3.2.1
-  - libgcc-ng=7.2.0
+  - libgcc-ng=7.3
   - libgd=2.2.5
   - libiconv=1.15
   - libpng=1.6.35

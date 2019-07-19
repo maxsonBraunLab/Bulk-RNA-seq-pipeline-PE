@@ -46,7 +46,7 @@ dependencies:
   - libedit=3.1.20170329
   - libffi=3.2.1
   - libgcc=7.2.0
-  - libgcc-ng=7.2.0
+  - libgcc-ng=7.3
   - libgfortran=3.0.0
   - libiconv=1.15
   - libpng=1.6.34
