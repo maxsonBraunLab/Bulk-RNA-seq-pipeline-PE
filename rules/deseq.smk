@@ -98,7 +98,7 @@ rule deseq2_qplot:
     params:
         contrast=get_contrast,
     conda:
-        "../envs/omic_qc_wf.yaml"
+        "../envs/qplot_env.yaml"
     script:
         "../scripts/qplot.R"
 
