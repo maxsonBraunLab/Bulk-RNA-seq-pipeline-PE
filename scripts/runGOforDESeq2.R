@@ -147,7 +147,7 @@ go.UP.BP <- runGO(geneList=up.geneList,xx=xx,otype="BP",setName=paste(basename(c
 drawBarplot(go=go.UP.BP,ontology="BP",setName=paste(basename(comparison),"upFC",FC, "adjp", adjp, sep="."))
 
 }else{
-up_out = snakemake@output[[1]]
+up_out = snakemake@output[[grep("diffexp.upFC", snakemake@output)]]
 write.table('No Significant Genes', file=up_out)
 }
 
@@ -171,6 +171,6 @@ print("make barplot for down genes")
 drawBarplot(go=go.DN.BP,ontology="BP",setName=paste(basename(comparison),"downFC",FC, "adjp", adjp, sep="."))
 
 }else{
-down_out = snakemake@output[[2]]
+down_out = snakemake@output[[grep("diffexp.downFC", snakemake@output)]]
 write.table('No Significant Gene', file=down_out)
 }
