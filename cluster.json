@@ -5,8 +5,8 @@
         "N" : 1,
         "partition" : "exacloud",
         "J" : "{rule}.{wildcards}",
-        "o" : "logs/{rule}/{rule}_%j.out",
-        "e" : "logs/{rule}/{rule}_%j.err",
+        "o" : "logs/__default__/{rule}_%j.out",
+        "e" : "logs/__default__/{rule}_%j.err",
         "c" : 4,
         "mem" : 45000
     },
@@ -32,6 +32,14 @@
         "e" : "logs/fastqscreen/fastqscreen_%j.err",
         "o" : "logs/fastqscreen/fastqscreen_%j.out",
         "c" : 6,
+        "mem":40000
+    },
+    "afterqc_filter":
+    {
+        "J" : "afterqc_filter",
+        "e" : "logs/afterqc_filter/afterqc_filter_%j.err",
+        "o" : "logs/afterqc_filter/afterqc_filter_%j.out",
+        "c" : 2,
         "mem":40000
     },
     "STAR" :
