@@ -10,9 +10,9 @@ bed_file:
   /home/groups/CEDAR/estabroj/beta4/data/mm10_MGC_gene.bed
 # Pre-built STAR index
 star_index:
-  /home/groups/CEDAR/estabroj/indexes/Mus_musculus/UCSC/mm10/Sequence/Star2Index
+  /home/groups/MaxsonLab/indices/mm10/STAR_index
 filter_anno:
-  /home/groups/CEDAR/anno/biomaRt/hg38.Ens_90.biomaRt.geneAnno.Rdata
+  anno/biomaRt/mm10.Ens_78.biomaRt.geneAnno.Rdata.external.geneID2GO.RData
 
 ####################################################################
 # Tool-specific files that will not change from project-to-project
@@ -23,10 +23,7 @@ bb_adapter:
   ./data/adapters.fa
 # Pre-built genome indexes for various organisms which we will screen against to look for contamination
 conf:
-  /home/groups/CEDAR/tools/FastQ_Screen_Genomes/fastq_screen.conf
-# Paths to various tools which are used in this pipeline
-star_tool:
-  /home/groups/CEDAR/tools/STAR/tags/2.5.3a/bin/Linux_x86_64/STAR
+  data/fastq_screen.conf
 
 ##########################################
 # Important project-specific paths/files
@@ -35,7 +32,7 @@ star_tool:
 # Metadata needed for differential expression analysis
 omic_meta_data:
 # tab delimited file
-  /path/to/metadata.txt
+  data/metadata.tsv
 
 ##############################################################################################
 # Project-specific specifications you will need to make prior to submission of the pipeline
@@ -47,7 +44,7 @@ biotypes:
   protein_coding
 # Unique project identifier which will be concatenated onto your counts table file name.
 project_id:
-  {project-id}
+  "my_project"
 # Genome assembly used for GO analysis, format must be as below, with the genome assembly first, and the version of ensembl second, separated by a period (Unless there is only one ensembl version, then just write assembly).
 assembly:
   mm10

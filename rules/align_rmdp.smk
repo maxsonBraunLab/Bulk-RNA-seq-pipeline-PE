@@ -76,21 +76,46 @@ rule STAR:
         "samples/star/{sample}_bam/Log.final.out"
     threads: 12
     params:
-        gtf=config["gtf_file"]
-    run:
-         STAR=config["star_tool"],
-         pathToGenomeIndex = config["star_index"]
+        gtf=config["gtf_file"],
+        genome_index=config["star_index"]
+    conda:
+        "../envs/star.yaml"
+    shell:
+        "STAR --runThreadN {threads} --runMode alignReads --genomeDir {params.genome_index} \
+        --readFilesIn {input.fwd} {input.rev} \
+        --outFileNamePrefix samples/star/{wildcards.sample}_bam/ \
+        --sjdbGTFfile {params.gtf} --quantMode GeneCounts \
+        --sjdbGTFtagExonParentGene gene_name \
+        --outSAMtype BAM SortedByCoordinate \
+        --readFilesCommand zcat \
+        --twopassMode Basic"
+# install star via conda rather than use CEDAR version. 
 
-         shell("""
-                {STAR} --runThreadN {threads} --runMode alignReads --genomeDir {pathToGenomeIndex} \
-                --readFilesIn {input.fwd} {input.rev} \
-                --outFileNamePrefix samples/star/{wildcards.sample}_bam/ \
-                --sjdbGTFfile {params.gtf} --quantMode GeneCounts \
-                --sjdbGTFtagExonParentGene gene_name \
-                --outSAMtype BAM SortedByCoordinate \
-                --readFilesCommand zcat \
-                --twopassMode Basic
-                """)
+# rule STAR:
+#     input:
+#         fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
+#         rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
+#     output:
+#         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam",
+#         "samples/star/{sample}_bam/ReadsPerGene.out.tab",
+#         "samples/star/{sample}_bam/Log.final.out"
+#     threads: 12
+#     params:
+#         gtf=config["gtf_file"]
+#     run:
+#          STAR=config["star_tool"],
+#          pathToGenomeIndex = config["star_index"]
+
+#          shell("""
+#                 {STAR} --runThreadN {threads} --runMode alignReads --genomeDir {pathToGenomeIndex} \
+#                 --readFilesIn {input.fwd} {input.rev} \
+#                 --outFileNamePrefix samples/star/{wildcards.sample}_bam/ \
+#                 --sjdbGTFfile {params.gtf} --quantMode GeneCounts \
+#                 --sjdbGTFtagExonParentGene gene_name \
+#                 --outSAMtype BAM SortedByCoordinate \
+#                 --readFilesCommand zcat \
+#                 --twopassMode Basic
+#                 """)
 
 rule index:
     input:
