@@ -2,17 +2,19 @@
 # Genome and project-specific files that will change from project-to-project
 ##############################################################################
 
+### Point gtf and indices to either human or mouse.
+
 # GTF file for the genome build you would like to use
 gtf_file:
-  /home/groups/CEDAR/estabroj/indexes/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/genes.gtf
+  /home/groups/MaxsonLab/indices/mm10/mm10.ensGene.gtf
 # Bed file for rseqc function read_distribution
 bed_file:
-  /home/groups/CEDAR/estabroj/beta4/data/mm10_MGC_gene.bed
+  data/mm10_MGC_gene.bed
 # Pre-built STAR index
 star_index:
   /home/groups/MaxsonLab/indices/mm10/STAR_index
 filter_anno:
-  anno/biomaRt/mm10.Ens_78.biomaRt.geneAnno.Rdata.external.geneID2GO.RData
+  anno/biomaRt/anno/biomaRt/mm10.Ens_96.biomaRt.geneAnno.Rdata
 
 ####################################################################
 # Tool-specific files that will not change from project-to-project
@@ -20,7 +22,7 @@ filter_anno:
 
 # Fasta file including Illumina adapters to be trimmed out via bbduk
 bb_adapter:
-  ./data/adapters.fa
+  data/adapters.fa
 # Pre-built genome indexes for various organisms which we will screen against to look for contamination
 conf:
   data/fastq_screen.conf
@@ -41,7 +43,8 @@ omic_meta_data:
 # Biotypes you would like to include in your gene counts table
 # Example: protein_coding,lincRNA,sRNA,rRNA,snRNA,snoRNA
 biotypes:
-  protein_coding
+  protein_coding ### if you want to keep all biotypes, use ""
+
 # Unique project identifier which will be concatenated onto your counts table file name.
 project_id:
   "my_project"

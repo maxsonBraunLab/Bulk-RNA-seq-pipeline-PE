@@ -7,6 +7,20 @@ This is a package of Python and R scripts that enable reading, processing and an
 This package implements the Snakemake management workflow system and is currently implemented to work with 
 the cluster management and job scheduling system SLURM. This snakemake workflow utilizes conda installations to download and use packages for further analysis, so please ensure that you have installed miniconda prior to use.
 
+Features unique to the MaxsonBraunLab fork
+======================
+
+```
+Decrease dependence on CEDAR software.
+
+1. install STAR 2.7.1a using conda
+2. fastq screen config file refers to Maxson Lab builds
+3. copied geneAnno files to local pipeline for biotype filtration. geneID2GO files for GO, and geneAnno files for biotype filter.
+4. copied /home/groups/CEDAR/estabroj/beta4/data/mm10_MGC_gene.bed to local pipeline for rseqc read_distribution metric.
+5. point indices and gtfs to maxson lab
+6. better documentation in omic_config.yaml
+```
+
 Questions/issues
 ======================
 
