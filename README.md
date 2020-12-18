@@ -19,6 +19,10 @@ Decrease dependence on CEDAR software.
 4. copied /home/groups/CEDAR/estabroj/beta4/data/mm10_MGC_gene.bed to local pipeline for rseqc read_distribution metric.
 5. point indices and gtfs to maxson lab
 6. better documentation in omic_config.yaml
+
+assuming that gene ID's (e.g. ENSMUSG...) are used for STAR mapping...
+7. for GO, convert from ensembl gene ID to gene name. this assumes you are using "mm10" or "hg38" assembly!
+8. when tossing mitochondrial genes, use mt gene ID from biomaRt rather than grep for "MT" in the genes column under the counts file. also assumes you are using "mm10" or "hg38" assembly!
 ```
 
 Questions/issues
