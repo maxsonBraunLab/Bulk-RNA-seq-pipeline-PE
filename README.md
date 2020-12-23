@@ -20,9 +20,19 @@ Decrease dependence on CEDAR software.
 5. point indices and gtfs to maxson lab
 6. better documentation in omic_config.yaml
 
-assuming that gene ID's (e.g. ENSMUSG...) are used for STAR mapping...
-7. for GO, convert from ensembl gene ID to gene name. this assumes you are using "mm10" or "hg38" assembly!
-8. when tossing mitochondrial genes, use mt gene ID from biomaRt rather than grep for "MT" in the genes column under the counts file. also assumes you are using "mm10" or "hg38" assembly!
+Pipeline fixes / tailor to Maxson Data
+
+7. pipeline is now organism agnostic
+8. biotype filtration now works
+9. mitochondrial gene filtration will now grep for "^MT-" while ignoring case. Good for mm10.
+10. need to attach a txt file from biomart with Gene.stable.ID and Gene.name columns for exporting gene names to diffexp output.
+11. FC for GO is now a raw number filter. Previous pipeline used log2(FC) filter.
+
+Spice up the output for the biologists
+
+12. used gene names in diffexp.tsv output
+    a. fix downstream formatting issues for GO and volcano plot.
+13. gene names in GE heatmap, variance heatmap, and MA plot.
 ```
 
 Questions/issues
