@@ -34,7 +34,8 @@ rule deseq2_pairwise:
         contrast=get_contrast,
         linear_model = config["linear_model"],
         pca_labels = config["pca"]["labels"],
-        sample_id = config["linear_model"]
+        sample_id = config["linear_model"],
+        gene_names = config["gene_names"]
     conda:
         "../envs/deseq2.yaml"
     threads: get_deseq2_threads()

@@ -22,6 +22,11 @@ print(degFile)
 
 if(grepl('txt$|tsv$',degFile)){
     deg <- read.delim(file=degFile,header=TRUE,sep="\t")
+
+    ### Since gene ID and gene name are in the diffexp file, push gene ID to row name and delete gene name col.
+    rownames(deg) <- deg$Gene.stable.ID
+    deg <- deg[,-c(1,2)]
+    ###
 }
 
 ##---------load correct Biomart------------------------#
@@ -132,7 +137,7 @@ drawBarplot <- function(go, ontology, setName){
 }
 
 print("get up genes and make geneList")
-up <- deg$padj < adjp & deg$log2FoldChange >= log2(FC)
+up <- deg$padj < adjp & deg$log2FoldChange >= FC
 up <- unique(rownames(deg[up,]))
 up <- toupper(up)
 up <- subset(gene_id_name, subset = gene_id_name$ensembl_gene_id %in% up)[,"external_gene_name"] ### take gene ID and convert to gene name
@@ -172,7 +177,7 @@ write.table('No Significant Genes', file=up_out)
 }
 
 print("get down genes and make geneList")
-dn <- deg$padj < adjp & deg$log2FoldChange <= -log2(FC)
+dn <- deg$padj < adjp & deg$log2FoldChange <= -FC
 dn <- unique(rownames(deg[dn,]))
 dn <- toupper(dn)
 dn <- subset(gene_id_name, subset = gene_id_name$ensembl_gene_id %in% dn)[,"external_gene_name"] ### take gene ID and convert to gene name
@@ -185,7 +190,7 @@ dn.setsize <- sum(as.numeric(levels(dn.geneList))[dn.geneList])
 print("setsize for significant genes") 
 dn.setsize
 
-### if upregulated gene name cannot be found in gene ID, print them out.
+### if downregulated gene name cannot be found in gene ID, print them out.
 no_name_index = which(dn %in% all == FALSE)
 if (length(no_name_index) > 0) {
   print("Upregulated gene name not found in GO database!")

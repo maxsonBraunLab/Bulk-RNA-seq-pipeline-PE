@@ -155,7 +155,5 @@ rule filter_counts:
         anno=config["filter_anno"],
         biotypes=config["biotypes"],
         mito=config['mito']
-    conda:
-        "../envs/runGO.yaml"
     script:
         "../scripts/RNAseq_filterCounts.R"

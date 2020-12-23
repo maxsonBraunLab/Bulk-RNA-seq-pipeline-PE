@@ -2,6 +2,8 @@ library("DESeq2")
 library("pheatmap")
 library("ggplot2")
 library("ggrepel")
+library("dplyr")
+library("tibble")
 
 print('Setting parameters')
 
@@ -226,4 +228,16 @@ dev.off()
 
 # sort by p-value
 res <- res[order(res$padj),]
-write.table(as.data.frame(res), file=out_table, quote=FALSE, sep='\t')
+
+
+### change gene ID to gene name. keep id and gene name in output.
+gene_anno <- read.delim(snakemake@params[["gene_names"]], stringsAsFactors = F)
+res <- as.data.frame(res) %>% rownames_to_column("Gene.stable.ID")
+DE_results <- res %>% inner_join(., gene_anno, by = "Gene.stable.ID") %>% select(Gene.stable.ID, Gene.name, everything())
+
+# print genes that do not have gene names.
+print("Genes that did not have a gene name!")
+print(anti_join(res, gene_anno))
+###
+
+write.table(DE_results, file=out_table, quote=FALSE, sep='\t', row.names = FALSE)
