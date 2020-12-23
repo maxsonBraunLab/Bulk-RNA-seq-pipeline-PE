@@ -46,6 +46,9 @@ dds <- readRDS(rds)
 cat(sprintf('Load rlog DESeqTransform object'))
 rld <- readRDS(rld)
 
+### read in gene ID and name
+gene_anno <- read.delim(snakemake@params[["gene_names"]], stringsAsFactors = F)
+###
 Dir <- "results/diffexp/pairwise/"
 
 plot_cols <- snakemake@config[['meta_columns_to_plot']]
@@ -151,7 +154,18 @@ if (exists("downGenesToLabel") & exists("upGenesToLabel")) {
   genesToLabel <- upGenesToLabel
 }
 
+### switch gene ID to gene name
+genesToLabel <- subset(gene_anno, gene_anno$Gene.stable.ID %in% genesToLabel)$Gene.name
+###
+
 if (exists("genesToLabel")) {
+  ### switch gene ID to gene name
+  forPlot <- as.data.frame(forPlot) %>%
+            rename("Gene.stable.ID" = Gene) %>%
+            inner_join(., gene_anno, by = "Gene.stable.ID") %>%
+            select(-c("Gene.stable.ID")) %>%
+            rename("Gene" = Gene.name)
+  ###
   maPlot <- ggplot(forPlot, mapping=aes(x=log2Norm, y=log2FoldChange, colour=Expression)) +
     geom_point() +
     geom_hline(yintercept=c(-1,1), linetype="dashed", color="black") +
@@ -214,24 +228,46 @@ if (length(subset_cols)==1) {
   annot <- df[,subset_cols]
 }
 
+###
 pdf(heatmap_plot)
-pheatmap(assay(rld)[topGenes,], cluster_rows=T, scale="row", fontsize=6,fontsize_row=6,fontsize_col=6,show_rownames=T, cluster_cols=T, annotation_col=annot, labels_col=as.character(rownames(df)), main = paste("Heatmap of top 50 DE genes:", contrast[2], "vs", contrast[3]))
+pheatmap(as.data.frame(assay(rld)[topGenes,]) %>%
+            rownames_to_column("Gene.stable.ID") %>%
+            inner_join(., gene_anno, by = "Gene.stable.ID") %>%
+            select(-c("Gene.stable.ID")) %>%
+            column_to_rownames("Gene.name"),
+          cluster_rows=T,
+          scale="row",
+          fontsize=6,
+          fontsize_row=6,
+          fontsize_col=6,
+          show_rownames=T,
+          cluster_cols=T,
+          annotation_col=annot,
+          labels_col=as.character(rownames(df)),
+          main = paste("Heatmap of top 50 DE genes:", contrast[2], "vs", contrast[3]))
 dev.off()
+###
 
+###
 # Variance Heatmap
 pdf(var_heat)
 topVarGenes <- head(order(rowVars(assay(rld)), decreasing = TRUE), 50)
 mat  <- assay(rld)[ topVarGenes, ]
 mat  <- mat - rowMeans(mat)
+mat <- as.data.frame(mat) %>%
+            rownames_to_column("Gene.stable.ID") %>%
+            inner_join(., gene_anno, by = "Gene.stable.ID") %>%
+            select(-c("Gene.stable.ID")) %>%
+            column_to_rownames("Gene.name")
+mat <- as.matrix(mat)
 pheatmap(mat, scale="row", annotation_col = annot,fontsize=6, main = paste("Heatmap of top 50 most variable genes:", contrast[2], "vs", contrast[3]))
 dev.off()
+###
 
 # sort by p-value
 res <- res[order(res$padj),]
 
-
 ### change gene ID to gene name. keep id and gene name in output.
-gene_anno <- read.delim(snakemake@params[["gene_names"]], stringsAsFactors = F)
 res <- as.data.frame(res) %>% rownames_to_column("Gene.stable.ID")
 DE_results <- res %>% inner_join(., gene_anno, by = "Gene.stable.ID") %>% select(Gene.stable.ID, Gene.name, everything())
 
