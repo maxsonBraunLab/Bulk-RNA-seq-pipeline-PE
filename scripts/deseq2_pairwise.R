@@ -154,12 +154,10 @@ if (exists("downGenesToLabel") & exists("upGenesToLabel")) {
   genesToLabel <- upGenesToLabel
 }
 
-### switch gene ID to gene name
-genesToLabel <- subset(gene_anno, gene_anno$Gene.stable.ID %in% genesToLabel)$Gene.name
-###
-
 if (exists("genesToLabel")) {
   ### switch gene ID to gene name
+  genesToLabel <- subset(gene_anno, gene_anno$Gene.stable.ID %in% genesToLabel)$Gene.name
+
   forPlot <- as.data.frame(forPlot) %>%
             rename("Gene.stable.ID" = Gene) %>%
             inner_join(., gene_anno, by = "Gene.stable.ID") %>%
