@@ -58,9 +58,6 @@ dds <- estimateSizeFactors(dds)
 # Remove uninformative columns
 dds <- dds[ rowSums(counts(dds)) >= 1, ]
 
-# Normalization and pre-processing
-dds <- DESeq(dds, parallel=parallel)
-
 saveRDS(dds, file=output)
 
 # colData and countData must have the same sample order, but this is ensured
