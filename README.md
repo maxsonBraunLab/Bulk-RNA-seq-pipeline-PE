@@ -1,4 +1,5 @@
-![Snakemake](https://img.shields.io/badge/snakemake-≥5.2.1-brightgreen.svg)[![Build Status](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE.svg?branch=master)](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE)
+![Snakemake](https://img.shields.io/badge/snakemake-≥5.2.1-brightgreen.svg)[![Build Status](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE.svg?branch=master)](https://travis-ci.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE)![Maintainer](https://img.shields.io/badge/maintainer-gartician-blue)[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
+
 # Bulk-RNA-seq-pipeline-PE
 
 Pipeline to run basic RNA-seq analysis on paired-end data.
@@ -25,123 +26,68 @@ Pipeline fixes / tailor to Maxson Data
 7. pipeline is now organism agnostic
 8. biotype filtration now works
 9. mitochondrial gene filtration will now grep for "^MT-" while ignoring case. Good for mm10.
-10. need to attach a txt file from biomart with Gene.stable.ID and Gene.name columns for exporting gene names to diffexp output.
 11. FC for GO is now a raw number filter. Previous pipeline used log2(FC) filter.
 
-Spice up the output for the biologists
-
-12. used gene names in diffexp.tsv output
-    a. fix downstream formatting issues for GO and volcano plot.
-13. gene names in GE heatmap, variance heatmap, and MA plot.
 ```
 
-Questions/issues
-======================
-
-Please add an issue to the Omics-QC-pipeline repository. We would appreciate if your issue included sample code/files 
-(as appropriate) so that we can reproduce your bug/issue. 
-
-
-Contributing
-======================
-
-We welcome contributors! For your pull requests, please include the following:
-
-* Sample code/file that reproducibly causes the bug/issue
-* Documented code providing fix
-* Unit tests evaluating added/modified methods. 
-
-Use
-======================
-
-Locate raw files:
-* After sequencing, your raw fastq files are placed in `/path/to/sequencing/files`.
+# 1. Prepare your work environment
 
 ```
-$ cd /path/to/raw/data
-$ ls -alh
-```
+# clone this repo to a new working directory
 
-Check md5sum.
+git clone git@github.com:maxsonBraunLab/Bulk-RNA-seq-pipeline-PE.git
+cd Bulk-RNA-seq-pipeline-PE/samples/raw
 
-```
-$ md5sum –c md5sum.txt > md5sum_out.txt
-```
-
-Move your files into the archive to be stored.
-
-```
-$ mv /path/to/raw/data /path/to/archive
-```
-
-Check md5sum again to ensure your sequencing files are not corrupted.
-
-```
-$ md5sum –c md5sum.txt > md5sum_out.txt
-```
-
-Unzip all fastq files.
-
-```
-$ gunzip –d sample.fastq.gz
-$ ctrl+z
-$ bg
-```
-
-Clone this repository into your working directory.
-
-```
-$ git clone https://github.com/ohsu-cedar-comp-hub/Bulk-RNA-seq-pipeline-PE.git
-```
-
-Create a `samples/raw` directory, a `logs` directory and a `data` directory (if they do not exist) in your `wdir()`.
-
-```
-$ mkdir logs
-$ mkdir data
-$ mkdir samples
-$ cd samples
-$ mkdir raw
-```
-
-Symbollically link the fastq files of your samples to the `wdir/samples/raw` directory using a bash script loop in your terminal.
-
-```
-$ ls -1 /path/to/data/LIB*R1*fastq | while read fastq; do
-    R1=$( basename $fastq | cut -d _ -f 2 | awk '{print $1"_R1.fq"}' )
-    R2=$( basename $fastq | cut -d _ -f 2 | awk '{print $1"_R2.fq"}' )
-    echo $R1 : $R2
-    ln -s $fastq ./$R1
-    ln -s ${fastq%R1_001.fastq}R2_001.fastq ./$R2
+# symlink your FASTQ files (gzipped) to this directory
+for file in (find <absolute/path/to/relevant/folder> -name "*.gz" | sort); do
+    echo "symlinking $file"
+    ln -s $file .
 done
+
+# rename symlinks to match the following format: {sample}_{R1|R2}.fastq.gz
+mv sample1_1.fq.gz sample1_R1.fastq.gz
+mv sample1_2.fq.gz sample1_R2.fastq.gz
+
 ```
 
-Upload your metadata file to the `data` directory, with the correct formatting:
-* Columns should read:
-```StudyID  Column2   Column3   ...```
-* Each row should be a sample, with subsequent desired information provided (RNA extraction date, etc.)
-* Edit omic_config.yaml to include only columns included in this metadata file:
-  * This includes `meta_columns_to_plot` and `pca labels`
-* All values in this file should be tab-separated
+# 2. Prepare your conda environment
 
-Edit the `omic_config.yaml` in your `wdir()`:
-* Change the `project_id` to a unique project identifier
-* Add appropriate contrasts based on your samples under the `[diffexp][contrasts]` section
-* Add the path to your metadata file for the `omic_meta_data` and `samples` parameters
-* Change `base_dir` to your current working directory
-* Ensure you have the correct `assembly` specified
-    * Current options for this are: hg19, hg38.89 (ensembl v89) and hg38.90 (ensembl v90)
+Continue forward if you don't have a conda environment with a clean install of snakemake.
 
-Do a dry-run of snakemake to ensure proper execution before submitting it to the cluster (in your wdir).
+```
+# while using base conda env, create your snakemake environment
+conda install -c conda-forge mamba # installs into base env
+mamba create -c conda-forge -c bioconda -n snakemake snakemake # installs snakemake into new env
+
+conda activate snakemake
+```
+
+# 3. Tailor the `omic_config.yaml` file to your analysis
+
+The `omic_config.yaml` file is used to customize the pipeline to your experiment. The pipeline requires STAR indices made using STAR 2.7.1a, and the current configuration uses Ensembl genomes and annotations.
+
+The `omic_config.yaml` file can also adjust for differential expression.
+
+To relate sample to covariates (e.g. condition), please fill out the `data/metadata.txt` file. If your only independent variable to analyze is treatment/condition, then the file would be a 2-column TSV file with "SampleID" and "Condition" as the headers. Additional headers (Lane, time points, etc.) can be recognized and plotted by specifying them in the `omic_config.yaml` file. These include the `meta_columns_to_plot`, `pca_labels`, `sampleID`, and `Type` keys.
+
+# 4. Set up SLURM integration
+
+Continue forward if you don't have a [SLURM profile](https://github.com/Snakemake-Profiles/slurm).
+
+Download the `slurm` folder from this [repository](https://github.com/gartician/slurm-snakemake-profile) and copy the entire thing to `~/.config/snakemake`. 
+
+# 5. Run the pipeline
+
+First do a dry-run of snakemake to ensure proper execution before submitting it to the cluster.
 
 ```
 $ snakemake -np --verbose
 ```
 
-Once your files are symbolically linked, you can submit the job to exacloud via your terminal window.
+Once your files are symbolically linked, you can submit the jobs batch-style to exacloud via your terminal window. This is most appropriate when running many heavy processes like read alignment.
 
 ```
-$ sbatch submit_snakemake.sh
+$ snakemake -j <n jobs> --use-conda --profile slurm --cluster-config cluster.yaml
 ```
 
 To see how the job is running, look at your queue.
@@ -150,17 +96,26 @@ To see how the job is running, look at your queue.
 $ squeue -u your_username
 ```
 
+If you need to re-run light processes such as differential expression and quality control, just remove the profile and cluster-config flags like this:
+
+```
+$ snakemake -j <n cores> --use-conda
+```
+
+`j` in this 'interactive' context means to use `n` amount of local cores, while the 'batch' context specifies number of active jobs!
+
 Detailed Workflow
 =================================
+
+![](rulegraph.svg)
 
 Alignment
 ======================
 1) Trimming
-    * Trimming of paired-end reads was performed using the trimming tool `sickle`
-    * The output is located in `samples/trimmed/`
+    * Trimming of paired-end reads was performed using fastp.
 2) Quality Analysis
     * Trimmed reads were subject to `fastqc` quality analysis
-    * The output is located in `samples/fastqc/{sample}/{samples}_t_fastqc.zip`
+    * The output is located in `samples/fastqc/{sample}/`
 3) Alignment
     * Trimmed reads were aligned to the hg38 genome assembly using `STAR`
         * We included a two pass mode flag in order to increase the number of aligned reads
@@ -209,7 +164,7 @@ Quality Analysis / Quality Check
             * A *Heatmap* which looks at genes with a high FC and low q-value (very significant)
                 * Takes genes with a FC>1.3, and ranks those by q-value. From this, a heatmap is generated for the top *50, 100 and 200* genes in this list
             * An *MDS Plot* which looks at the same subsets of genes as the Heatmap described above
-            
+
 Differential Expression Analysis (DESeq2)
 ======================
 1) Initializing the DESeq2 object
@@ -241,3 +196,4 @@ Differential Expression Analysis (DESeq2)
         * Volcano plots:
             * A `volcano plot` describing the distribution of up/downregulated genes in a given comparison
                 * Output is located in `results/diffexp`
+
