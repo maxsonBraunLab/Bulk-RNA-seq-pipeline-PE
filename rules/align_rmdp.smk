@@ -1,38 +1,3 @@
-# rule trim_bbduk:
-#     input:
-#         fwd = "samples/raw/{sample}_R1.fastq.gz",
-#         rev = "samples/raw/{sample}_R2.fastq.gz"
-#     output:
-#         fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
-#         rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz",
-#     params:
-#         ref=config["bb_adapter"]
-#     message:
-#         """--- Trimming."""
-#     conda:
-#         "../envs/bbmap.yaml"
-#     shell:
-#         """bbduk.sh -Xmx1g in1={input.fwd} in2={input.rev} out1={output.fwd} out2={output.rev} minlen=25 qtrim=rl trimq=10 ktrim=r k=25 mink=11 ref={params.ref} hdist=1"""
-
-# rule afterqc_filter:
-#     input:
-#         fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
-#         rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz"
-#     output:
-#         "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
-#         "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz",
-#         "samples/bbduk/{sample}/bad/{sample}_R1_t.bad.fq.gz",
-#         "samples/bbduk/{sample}/bad/{sample}_R2_t.bad.fq.gz",
-#         "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.html",
-#         "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.json",
-
-#     message:
-#         """---AfterQC"""
-#     conda:
-#         "../envs/afterqc.yaml"
-#     shell:
-#         """after.py -1 {input.fwd} -2 {input.rev} --report_output_folder=samples/bbduk/{wildcards.sample}/QC/ -g samples/bbduk/{wildcards.sample}/good/ -b samples/bbduk/{wildcards.sample}/bad/"""
-
 rule fastp:
     input:
         fwd = "samples/raw/{sample}_R1.fastq.gz",
@@ -107,32 +72,6 @@ rule STAR:
         --twopassMode Basic"
 # install star via conda rather than use CEDAR version. 
 
-# rule STAR:
-#     input:
-#         fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
-#         rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
-#     output:
-#         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam",
-#         "samples/star/{sample}_bam/ReadsPerGene.out.tab",
-#         "samples/star/{sample}_bam/Log.final.out"
-#     threads: 12
-#     params:
-#         gtf=config["gtf_file"]
-#     run:
-#          STAR=config["star_tool"],
-#          pathToGenomeIndex = config["star_index"]
-
-#          shell("""
-#                 {STAR} --runThreadN {threads} --runMode alignReads --genomeDir {pathToGenomeIndex} \
-#                 --readFilesIn {input.fwd} {input.rev} \
-#                 --outFileNamePrefix samples/star/{wildcards.sample}_bam/ \
-#                 --sjdbGTFfile {params.gtf} --quantMode GeneCounts \
-#                 --sjdbGTFtagExonParentGene gene_name \
-#                 --outSAMtype BAM SortedByCoordinate \
-#                 --readFilesCommand zcat \
-#                 --twopassMode Basic
-#                 """)
-
 rule index:
     input:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam"
@@ -173,3 +112,13 @@ rule filter_counts:
         mito=config['mito']
     script:
         "../scripts/RNAseq_filterCounts.R"
+
+rule multiqc:
+    input:
+        expand("samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam", sample = SAMPLES)
+    output:
+        "results/multiqc_report/multiqc_report.html"
+    conda:
+        "../envs/multiqc.yaml"
+    shell:
+        "multiqc logs/ samples/ -f -o results/multiqc_report"

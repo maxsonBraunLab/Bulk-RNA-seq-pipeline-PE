@@ -87,6 +87,7 @@ rule all:
         # expand("rseqc/read_distribution/{sample}/{sample}.read_distribution.{ext}", sample = SAMPLES, ext = read_dist_ext),
         expand("rseqc/read_GC/{sample}/{sample}.GC{ext}", sample = SAMPLES, ext = read_gc_ext),
         expand("results/diffexp/pairwise/{contrast}.pca_plot.pdf", contrast = config["diffexp"]["contrasts"]),
+        "results/multiqc_report/multiqc_report.html",
         # differential expression
         "data/{project_id}_norm.txt".format(project_id = config["project_id"]),
         "data/{project_id}_log2norm.txt".format(project_id = config["project_id"]),
