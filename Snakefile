@@ -76,6 +76,7 @@ for sample in SAMPLES:
 
 rule all:
     input:
+        # read alignment and QC
         expand("samples/fastp/{sample}_{dir}.fastq.gz", sample = SAMPLES, dir = ["R1", "R2"]),
         expand("results/tables/{project_id}_STAR_mapping_statistics.txt", project_id = config['project_id']),
         expand("samples/fastqc/{sample}/{sample}_{dir}_fastqc.zip", sample = SAMPLES, dir = ["R1", "R2"]),
@@ -86,9 +87,12 @@ rule all:
         # expand("rseqc/read_distribution/{sample}/{sample}.read_distribution.{ext}", sample = SAMPLES, ext = read_dist_ext),
         expand("rseqc/read_GC/{sample}/{sample}.GC{ext}", sample = SAMPLES, ext = read_gc_ext),
         expand("results/diffexp/pairwise/{contrast}.pca_plot.pdf", contrast = config["diffexp"]["contrasts"]),
-        # "results/diffexp/group/LRT_pca.pdf",
-        # "results/diffexp/group/MDS_table.txt",
-        # "results/diffexp/group/LRT_density_plot.pdf",
+        # differential expression
+        "data/{project_id}_norm.txt".format(project_id = config["project_id"]),
+        "data/{project_id}_log2norm.txt".format(project_id = config["project_id"]),
+        "results/diffexp/group/LRT_pca.pdf",
+        "results/diffexp/group/MDS_table.txt",
+        "results/diffexp/group/LRT_density_plot.pdf",
         expand(["results/diffexp/pairwise/{contrast}.qplot.pdf","results/diffexp/pairwise/{contrast}.qhist.pdf","results/diffexp/pairwise/{contrast}.qvalue_diffexp.tsv"],contrast=config["diffexp"]["contrasts"]),
         expand(["results/diffexp/pairwise/GOterms/{contrast}.diffexp.downFC.{FC}.adjp.{adjp}_BP_GO.txt", "results/diffexp/pairwise/GOterms/{contrast}.diffexp.upFC.{FC}.adjp.{adjp}_BP_GO.txt"], contrast = config["diffexp"]["contrasts"], FC=config['FC'], adjp=config['adjp']),
         expand("results/diffexp/pairwise/{contrast}.diffexp.{adjp}.VolcanoPlot.pdf", contrast = config["diffexp"]["contrasts"], adjp = config['adjp']),
