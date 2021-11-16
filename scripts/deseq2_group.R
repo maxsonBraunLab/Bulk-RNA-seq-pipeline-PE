@@ -73,7 +73,7 @@ rownames(md) <- md[[sampleID]]
 md[[sampleID]] <- NULL
 
 # Ensure that we subset md to have exactly the same samples as in the counts table
-md <- md[colnames(cts),]
+# md <- md[colnames(cts),]
 dim(md)
 
 # Check
@@ -172,6 +172,7 @@ saveRDS(rld, file=rld_out)
 group <- as.vector(group)
 
 # If LRT group has been specified, run the analysis for that group
+save.image()
 if (length(group)>0) {
   md <- read.delim(file=metadata, sep = "\t", stringsAsFactors = FALSE)
   md <- md[order(md[sampleID]),]
@@ -183,7 +184,7 @@ if (length(group)>0) {
   keep <- colnames(cts)[colnames(cts) %in% rownames(md)]
   cts <- cts[, keep]
   dim(cts)
-  md <- md[colnames(cts),]
+  md = subset(md, rownames(md) %in% keep)
   dim(md)
 
   dds <- DESeqDataSetFromMatrix(countData=cts,

@@ -22,11 +22,6 @@ print(degFile)
 
 if(grepl('txt$|tsv$',degFile)){
     deg <- read.delim(file=degFile,header=TRUE,sep="\t")
-
-    ### Since gene ID and gene name are in the diffexp file, push gene ID to row name and delete gene name col.
-    rownames(deg) <- deg$Gene.stable.ID
-    deg <- deg[,-c(1,2)]
-    ###
 }
 
 ##---------load correct Biomart------------------------#
@@ -53,18 +48,6 @@ if (assembly == "mm10") {
     geneID2GO <- get(load("./anno/biomaRt/mm10.Ens_78.biomaRt.geneAnno.Rdata.external.geneID2GO.RData"))
     xx <- get(load("./anno/biomaRt/GO.db.Term.list.rda"))
 }
-
-### Convert ENSMUSG ID into gene names with biomaRt ###
-ensembl <- useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL")
-if (assembly == "mm10") {
-  ensembl <- useDataset(dataset = "mmusculus_gene_ensembl", mart = ensembl)
-} else if (assembly == "hg38") {
-  ensembl <- useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl) 
-} else {
-  stop("Must use either mm10 or hg38 assembly")
-}
-
-gene_id_name <- getBM(attributes = c("ensembl_gene_id", "external_gene_name"), mart = ensembl)
 
 ##-----------------------------------Functions--------------------------------------#
 runGO <- function(geneList,xx=xx,otype,setName){
@@ -137,11 +120,9 @@ drawBarplot <- function(go, ontology, setName){
 }
 
 print("get up genes and make geneList")
-up <- deg$padj < adjp & deg$log2FoldChange >= FC
+up <- deg$padj < adjp & deg$log2FoldChange >= log2(FC)
 up <- unique(rownames(deg[up,]))
 up <- toupper(up)
-up <- subset(gene_id_name, subset = gene_id_name$ensembl_gene_id %in% up)[,"external_gene_name"] ### take gene ID and convert to gene name
-
 all <-unique(names(geneID2GO))
 up.geneList <-  factor(as.integer(all %in% up))
 names(up.geneList) <- all
@@ -158,12 +139,6 @@ if(!(file.exists(Dir))) {
       dir.create(Dir,FALSE,TRUE)
 }
 
-### if upregulated gene name cannot be found in gene ID, print them out.
-no_name_index = which(up %in% all == FALSE)
-if (length(no_name_index) > 0) {
-  print("Upregulated gene name not found in GO database!")
-  print(gene_id_name[no_name_index, ])
-}
 
 if (up.setsize >= 2){
 
@@ -177,11 +152,9 @@ write.table('No Significant Genes', file=up_out)
 }
 
 print("get down genes and make geneList")
-dn <- deg$padj < adjp & deg$log2FoldChange <= -FC
+dn <- deg$padj < adjp & deg$log2FoldChange <= -log2(FC)
 dn <- unique(rownames(deg[dn,]))
 dn <- toupper(dn)
-dn <- subset(gene_id_name, subset = gene_id_name$ensembl_gene_id %in% dn)[,"external_gene_name"] ### take gene ID and convert to gene name
-
 all <-unique(names(geneID2GO))
 dn.geneList <-  factor(as.integer(all %in% dn))
 names(dn.geneList) <- all
@@ -189,13 +162,6 @@ names(dn.geneList) <- all
 dn.setsize <- sum(as.numeric(levels(dn.geneList))[dn.geneList])
 print("setsize for significant genes") 
 dn.setsize
-
-### if downregulated gene name cannot be found in gene ID, print them out.
-no_name_index = which(dn %in% all == FALSE)
-if (length(no_name_index) > 0) {
-  print("Upregulated gene name not found in GO database!")
-  print(gene_id_name[no_name_index, ])
-}
 
 if(dn.setsize >= 2){
 

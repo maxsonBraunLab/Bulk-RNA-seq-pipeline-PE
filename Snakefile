@@ -76,11 +76,12 @@ for sample in SAMPLES:
 
 rule all:
     input:
+        expand("samples/fastp/{sample}_{dir}.fastq.gz", sample = SAMPLES, dir = ["R1", "R2"]),
         expand("results/tables/{project_id}_STAR_mapping_statistics.txt", project_id = config['project_id']),
-        expand("samples/fastqc/{sample}/{sample}_{fastq_ext}_t.good_fastqc.zip", sample = SAMPLES, fastq_ext = fastq_ext),
-        expand("samples/fastqscreen/{sample}/{sample}_{fastq_ext}_t.good_screen.{fastqscreen_ext}", sample=SAMPLES, fastq_ext=fastq_ext, fastqscreen_ext=fastqscreen_ext),
+        expand("samples/fastqc/{sample}/{sample}_{dir}_fastqc.zip", sample = SAMPLES, dir = ["R1", "R2"]),
+        expand("samples/fastqscreen/{sample}/{sample}_{dir}_screen.{fastqscreen_ext}", sample=SAMPLES, dir = ["R1", "R2"], fastq_ext=fastq_ext, fastqscreen_ext=fastqscreen_ext),
         expand("rseqc/insertion_profile/{sample}/{sample}.insertion_profile.{ext}",sample=SAMPLES, ext=insertion_and_clipping_prof_ext),
-        expand("rseqc/inner_distance/{sample}/{sample}.inner_distance{ext}", sample = SAMPLES, ext = inner_distance_ext),
+        # expand("rseqc/inner_distance/{sample}/{sample}.inner_distance{ext}", sample = SAMPLES, ext = inner_distance_ext),
         expand("rseqc/clipping_profile/{sample}/{sample}.clipping_profile.{ext}", sample = SAMPLES, ext = insertion_and_clipping_prof_ext),
         # expand("rseqc/read_distribution/{sample}/{sample}.read_distribution.{ext}", sample = SAMPLES, ext = read_dist_ext),
         expand("rseqc/read_GC/{sample}/{sample}.GC{ext}", sample = SAMPLES, ext = read_gc_ext),

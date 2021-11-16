@@ -1,6 +1,5 @@
 library(ggplot2)
 library(ggrepel)
-library(dplyr)
 
 degFile = snakemake@input[['degFile']]
 
@@ -26,12 +25,6 @@ print(degFile)
 
 ## check if an rda file or tab sep
 deg <- read.delim(file=degFile)
-
-### Since gene ID and gene name are in the diffexp file, push gene name to row name and delete gene ID + name cols.
-deg <- distinct(deg, Gene.name, .keep_all=TRUE) # cannot have duplicate gene name in the rownames, so must keep one.
-rownames(deg) <- deg$Gene.name
-deg <- deg[,-c(1,2)]
-###
 
 head(deg)
 dim(deg)

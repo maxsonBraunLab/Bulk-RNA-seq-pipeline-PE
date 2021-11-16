@@ -1,0 +1,155 @@
+__default__:
+  time: '35:00:00'
+  partition: exacloud
+  job-name: '{rule}.{wildcards}'
+  output: 'logs/__default__/{rule}_%j.out'
+  error: 'logs/__default__/{rule}_%j.err'
+  cpus-per-task: 4
+  mem: 45000
+trim_bbduk:
+  job-name: trim_bbduk
+  error: 'logs/{rule}/{wildcards.sample}_%j.err'
+  output: 'logs/{rule}/{wildcards.sample}_%j.out'
+  cpus-per-task: 1
+  mem: 54000
+fastqcpus-per-task:
+  job-name: fastqc
+  error: logs/fastqc/fastqc_%j.err
+  output: logs/fastqc/fastqc_%j.out
+  cpus-per-task: 6
+  mem: 40000
+fastqscreen:
+  job-name: fastqscreen
+  error: logs/fastqscreen/fastqscreen_%j.err
+  output: logs/fastqscreen/fastqscreen_%j.out
+  cpus-per-task: 6
+  mem: 40000
+afterqc_filter:
+  job-name: afterqc_filter
+  error: logs/afterqc_filter/afterqc_filter_%j.err
+  output: logs/afterqc_filter/afterqc_filter_%j.out
+  cpus-per-task: 2
+  mem: 40000
+STAR:
+  job-name: STAR
+  error: logs/STAR/STAR%j.err
+  output: logs/STAR/STAR%j.out
+  cpus-per-task: 12
+  mem: 64000
+index:
+  job-name: index
+  error: logs/index/index%j.err
+  output: logs/index/index%j.out
+  cpus-per-task: 1
+  mem: 45000
+star_statistics:
+  job-name: star_statistics
+  error: logs/star_statistics/star_statistics_%j.err
+  output: logs/star_statistics/star_statistics_%j.out
+  cpus-per-task: 1
+  mem: 5000
+compile_star_counts:
+  job-name: compile_star_counts
+  error: logs/compile_star_counts/compile_star_counts_%j.err
+  output: logs/compile_star_counts/compile_star_counts_%j.out
+  cpus-per-task: 1
+  mem: 10000
+filter_counts:
+  job-name: filter_counts
+  error: logs/filter_counts/filter_counts_%j.err
+  output: logs/filter_counts/filter_counts_%j.out
+  cpus-per-task: 1
+  mem: 10000
+insertion_profile:
+  job-name: insertion_profile
+  error: 'logs/{rule}/{wildcards.sample}_%j.err'
+  output: 'logs/{rule}/{wildcards.sample}_%j.out'
+  cpus-per-task: 1
+  mem: 10000
+inner_distance:
+  job-name: inner_distance
+  error: 'logs/{rule}/{wildcards.sample}_%j.err'
+  output: 'logs/{rule}/{wildcards.sample}_%j.out'
+  cpus-per-task: 1
+  mem: 10000
+clipping_profile:
+  job-name: clipping_profile
+  error: 'logs/{rule}/{wildcards.sample}_%j.err'
+  output: 'logs/{rule}/{wildcards.sample}_%j.out'
+  cpus-per-task: 1
+  mem: 10000
+read_distribution:
+  job-name: read_distribution
+  error: 'logs/{rule}/{wildcards.sample}_%j.err'
+  output: 'logs/{rule}/{wildcards.sample}_%j.out'
+  cpus-per-task: 1
+  mem: 10000
+read_GCpus-per-task:
+  job-name: read_GC
+  error: 'logs/{rule}/{wildcards.sample}_%j.err'
+  output: 'logs/{rule}/{wildcards.sample}_%j.out'
+  cpus-per-task: 1
+  mem: 10000
+deseq2_init:
+  job-name: deseq2_init
+  error: logs/deseq2_init/deseq2_init_%j.err
+  output: logs/deseq2_init/deseq2_init_%j.out
+  cpus-per-task: 8
+  mem: 80000
+deseq2_pairwise:
+  job-name: deseq2_pairwise
+  error: logs/deseq2_pairwise/deseq2_pairwise_%j.err
+  output: logs/deseq2_pairwise/deseq2_pairwise_%j.out
+  cpus-per-task: 8
+  mem: 80000
+deseq2_group:
+  job-name: deseq2_group
+  error: logs/deseq2_group/deseq2_group_%j.err
+  output: logs/deseq2_group/deseq2_group_%j.out
+  mem: 30000
+deseq2_QCpus-per-task:
+  job-name: deseq2_QC
+  error: logs/deseq2_QC/deseq2_QC_%j.err
+  output: logs/deseq2_QC/deseq2_QC_%j.out
+  mem: 30000
+deseq2_qplot:
+  job-name: deseq2_qplot
+  error: logs/deseq2_qplot/deseq2_qplot_%j.err
+  output: logs/deseq2_qplot/deseq2_qplot_%j.out
+  mem: 30000
+deseq2_density:
+  job-name: deseq2_density
+  error: logs/deseq2_density/deseq2_density_%j.err
+  output: logs/deseq2_density/deseq2_density_%j.out
+  mem: 30000
+output:
+  job-name: GO
+  error: logs/GO/GO%j.err
+  output: logs/GO/GO%j.out
+  cpus-per-task: 6
+  mem: 64000
+output:
+  job-name: volcano
+  error: logs/volcano/volcano%j.err
+  output: logs/volcano/volcano%j.out
+  cpus-per-task: 1
+  mem: 5400
+permutation:
+  job-name: permutation
+  error: logs/permutation/permutation%j.err
+  output: logs/permutation/permutation%j.out
+  cpus-per-task: 12
+  mem: 80000
+run_glimma:
+  job-name: run_glimma
+  error: logs/run_glimma/run_glimma%j.err
+  output: logs/run_glimma/run_glimma_%j.out
+  cpus-per-task: 1
+  mem: 1000
+run_glimma_mds:
+  job-name: run_glimma_mds
+  error: logs/run_glimma_mds/run_glimma_mds%j.err
+  output: logs/run_glimma_mds/run_glimma_mds%j.out
+  cpus-per-task: 1
+  mem: 1000
+

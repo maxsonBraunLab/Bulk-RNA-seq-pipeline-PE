@@ -1,49 +1,65 @@
-rule trim_bbduk:
+# rule trim_bbduk:
+#     input:
+#         fwd = "samples/raw/{sample}_R1.fastq.gz",
+#         rev = "samples/raw/{sample}_R2.fastq.gz"
+#     output:
+#         fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
+#         rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz",
+#     params:
+#         ref=config["bb_adapter"]
+#     message:
+#         """--- Trimming."""
+#     conda:
+#         "../envs/bbmap.yaml"
+#     shell:
+#         """bbduk.sh -Xmx1g in1={input.fwd} in2={input.rev} out1={output.fwd} out2={output.rev} minlen=25 qtrim=rl trimq=10 ktrim=r k=25 mink=11 ref={params.ref} hdist=1"""
+
+# rule afterqc_filter:
+#     input:
+#         fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
+#         rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz"
+#     output:
+#         "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
+#         "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz",
+#         "samples/bbduk/{sample}/bad/{sample}_R1_t.bad.fq.gz",
+#         "samples/bbduk/{sample}/bad/{sample}_R2_t.bad.fq.gz",
+#         "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.html",
+#         "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.json",
+
+#     message:
+#         """---AfterQC"""
+#     conda:
+#         "../envs/afterqc.yaml"
+#     shell:
+#         """after.py -1 {input.fwd} -2 {input.rev} --report_output_folder=samples/bbduk/{wildcards.sample}/QC/ -g samples/bbduk/{wildcards.sample}/good/ -b samples/bbduk/{wildcards.sample}/bad/"""
+
+rule fastp:
     input:
         fwd = "samples/raw/{sample}_R1.fastq.gz",
         rev = "samples/raw/{sample}_R2.fastq.gz"
     output:
-        fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
-        rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz",
-    params:
-        ref=config["bb_adapter"]
-    message:
-        """--- Trimming."""
+        fwd = "samples/fastp/{sample}_R1.fastq.gz",
+        rev = "samples/fastp/{sample}_R2.fastq.gz"
     conda:
-        "../envs/bbmap.yaml"
+        "../envs/fastp.yaml"
+    log:
+        "logs/fastp/{sample}.fastp.json"
+    threads: 8
     shell:
-        """bbduk.sh -Xmx1g in1={input.fwd} in2={input.rev} out1={output.fwd} out2={output.rev} minlen=25 qtrim=rl trimq=10 ktrim=r k=25 mink=11 ref={params.ref} hdist=1"""
-
-rule afterqc_filter:
-    input:
-        fwd = "samples/bbduk/{sample}/{sample}_R1_t.fastq.gz",
-        rev = "samples/bbduk/{sample}/{sample}_R2_t.fastq.gz"
-    output:
-        "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
-        "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz",
-        "samples/bbduk/{sample}/bad/{sample}_R1_t.bad.fq.gz",
-        "samples/bbduk/{sample}/bad/{sample}_R2_t.bad.fq.gz",
-        "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.html",
-        "samples/bbduk/{sample}/QC/{sample}_R1_t.fastq.gz.json",
-
-    message:
-        """---AfterQC"""
-    conda:
-        "../envs/afterqc.yaml"
-    shell:
-        """after.py -1 {input.fwd} -2 {input.rev} --report_output_folder=samples/bbduk/{wildcards.sample}/QC/ -g samples/bbduk/{wildcards.sample}/good/ -b samples/bbduk/{wildcards.sample}/bad/"""
+        "fastp -i {input.fwd} -I {input.rev} -o {output.fwd} -O {output.rev} "
+        "--detect_adapter_for_pe --thread {threads} -j {log} -h /dev/null"
 
 rule fastqscreen:
     input:
-        fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
-        rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
+        fwd = "samples/fastp/{sample}_R1.fastq.gz",
+        rev = "samples/fastp/{sample}_R2.fastq.gz"
     output:
-        "samples/fastqscreen/{sample}/{sample}_R1_t.good_screen.html",
-        "samples/fastqscreen/{sample}/{sample}_R1_t.good_screen.png",
-        "samples/fastqscreen/{sample}/{sample}_R1_t.good_screen.txt",
-        "samples/fastqscreen/{sample}/{sample}_R2_t.good_screen.html",
-        "samples/fastqscreen/{sample}/{sample}_R2_t.good_screen.png",
-        "samples/fastqscreen/{sample}/{sample}_R2_t.good_screen.txt"
+        "samples/fastqscreen/{sample}/{sample}_R1_screen.html",
+        "samples/fastqscreen/{sample}/{sample}_R1_screen.png",
+        "samples/fastqscreen/{sample}/{sample}_R1_screen.txt",
+        "samples/fastqscreen/{sample}/{sample}_R2_screen.html",
+        "samples/fastqscreen/{sample}/{sample}_R2_screen.png",
+        "samples/fastqscreen/{sample}/{sample}_R2_screen.txt"
     params:
         conf = config["conf"]
     conda:
@@ -54,11 +70,11 @@ rule fastqscreen:
 
 rule fastqc:
     input:
-        fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
-        rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
+        fwd = "samples/fastp/{sample}_R1.fastq.gz",
+        rev = "samples/fastp/{sample}_R2.fastq.gz"
     output:
-        fwd = "samples/fastqc/{sample}/{sample}_R1_t.good_fastqc.zip",
-        rev = "samples/fastqc/{sample}/{sample}_R2_t.good_fastqc.zip"
+        fwd = "samples/fastqc/{sample}/{sample}_R1_fastqc.zip",
+        rev = "samples/fastqc/{sample}/{sample}_R2_fastqc.zip"
     conda:
         "../envs/fastqc.yaml"
     message:
@@ -68,8 +84,8 @@ rule fastqc:
 
 rule STAR:
     input:
-        fwd = "samples/bbduk/{sample}/good/{sample}_R1_t.good.fq.gz",
-        rev = "samples/bbduk/{sample}/good/{sample}_R2_t.good.fq.gz"
+        fwd = "samples/fastp/{sample}_R1.fastq.gz",
+        rev = "samples/fastp/{sample}_R2.fastq.gz"
     output:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam",
         "samples/star/{sample}_bam/ReadsPerGene.out.tab",
