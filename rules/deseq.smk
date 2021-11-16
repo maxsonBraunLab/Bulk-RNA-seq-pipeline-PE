@@ -17,6 +17,21 @@ rule deseq2_init:
     script:
         "../scripts/deseq2-init.R"
 
+# output DESeq2 median of ratios table.
+rule deseq2_norm:
+    input:
+        counts = "data/{project_id}_counts.filt.txt".format(project_id=config["project_id"])
+    output:
+        counts = "data/{project_id}_norm.txt".format(project_id=config["project_id"]),
+        logcounts = "data/{project_id}_log2norm.txt".format(project_id=config["project_id"])
+    params:
+        samples=config["omic_meta_data"],
+        sample_id = config["sample_id"],
+        linear_model = config["linear_model"]
+    conda:
+        "../envs/deseq2.yaml"
+    script:
+        "../scripts/deseq2_norm.R"
 
 rule deseq2_pairwise:
     input:
