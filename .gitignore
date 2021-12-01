@@ -1,3 +1,6 @@
 .snakemake/
 results/
 logs/
+.RData
+Rplots.pdf
+rseqc/

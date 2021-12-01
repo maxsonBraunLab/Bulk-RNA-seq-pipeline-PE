@@ -1,7 +1,7 @@
 __default__:
   time: '03:00:00'
   partition: exacloud
-  job-name: '{rule}.{wildcards}'
+  job-name: '{rule}'
   output: 'logs/{rule}_%j.out'
   error: 'logs/{rule}_%j.err'
   cpus-per-task: 4

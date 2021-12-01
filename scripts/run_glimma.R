@@ -11,8 +11,9 @@ volcano_plot_ = snakemake@output[['volcano_plot']]
 ma_plot = str_sub(tail(strsplit(ma_plot_,'/')[[1]],n=1),1,-6)
 volcano_plot = str_sub(tail(strsplit(volcano_plot_,'/')[[1]],n=1),1,-6)
 
-
-contrast = c(condition, snakemake@params[["contrast"]])
+target <- strsplit(as.character(snakemake@params[["contrast"]]), "-vs-")[[1]][1]
+baseline <- strsplit(as.character(snakemake@params[["contrast"]]), "-vs-")[[1]][2]
+contrast = c(condition, target, baseline)
 rds = snakemake@input[['rds']]
 cat(sprintf(c('RDS object: ',rds,'\n')))
 

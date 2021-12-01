@@ -1,4 +1,4 @@
-contrast = get_contrast
+# contrast = wildcards.get_contrast
 
 rule deseq2_init:
     input:
@@ -10,14 +10,15 @@ rule deseq2_init:
         samples=config["omic_meta_data"],
         sample_id = config["sample_id"],
         linear_model = config["linear_model"],
-        contrast = get_contrast
+        contrast = "{contrast}"
     conda:
         "../envs/permutation.yaml"
-    threads: get_deseq2_threads()
+    threads: 4
     script:
         "../scripts/deseq2-init.R"
 
-# output DESeq2 median of ratios table.
+
+# output log2-transformed DESeq2-normalized counts table.
 rule deseq2_norm:
     input:
         counts = "data/{project_id}_counts.filt.txt".format(project_id=config["project_id"])
@@ -33,6 +34,7 @@ rule deseq2_norm:
     script:
         "../scripts/deseq2_norm.R"
 
+
 rule deseq2_pairwise:
     input:
         rds="results/diffexp/pairwise/{contrast}_all.rds",
@@ -46,14 +48,14 @@ rule deseq2_pairwise:
         var_heat = "results/diffexp/pairwise/{contrast}.variance_heatmap.pdf",
         pca_plot = "results/diffexp/pairwise/{contrast}.pca_plot.pdf"
     params:
-        contrast=get_contrast,
+        contrast="{contrast}",
         linear_model = config["linear_model"],
         pca_labels = config["pca"]["labels"],
         sample_id = config["linear_model"],
         gene_names = config["gene_names"]
     conda:
         "../envs/deseq2.yaml"
-    threads: get_deseq2_threads()
+    threads: 4
     script:
         "../scripts/deseq2_pairwise.R"
 
@@ -81,6 +83,7 @@ rule deseq2_group:
     script:
         "../scripts/deseq2_group.R"
 
+
 rule deseq2_QC:
     input:
         rld="results/diffexp/group/LRT_rlog_dds.rds",
@@ -104,6 +107,7 @@ rule deseq2_QC:
     script:
         "../scripts/QC.R"
 
+
 rule deseq2_qplot:
     input:
         stats_table="results/diffexp/pairwise/{contrast}.diffexp.tsv",
@@ -112,7 +116,7 @@ rule deseq2_qplot:
         qhist="results/diffexp/pairwise/{contrast}.qhist.pdf",
         table = "results/diffexp/pairwise/{contrast}.qvalue_diffexp.tsv"
     params:
-        contrast=get_contrast,
+        contrast="{contrast}",
     conda:
         "../envs/qplot_env.yaml"
     script:
@@ -142,7 +146,7 @@ rule GO:
         "results/diffexp/pairwise/GOterms/{{contrast}}.diffexp.downFC.{FC}.adjp.{adjp}_BP_GO.txt".format(FC = config["FC"],adjp=config["adjp"]),
         "results/diffexp/pairwise/GOterms/{{contrast}}.diffexp.upFC.{FC}.adjp.{adjp}_BP_GO.txt".format(FC = config["FC"],adjp=config["adjp"])
     params:
-        contrast = get_contrast,
+        contrast = "{contrast}",
         assembly = config["assembly"],
         printTree = config["printTree"],
         FC = config["FC"],
@@ -159,7 +163,7 @@ rule volcano:
     output:
         volcano_plot="results/diffexp/pairwise/{{contrast}}.diffexp.{adjp}.VolcanoPlot.pdf".format(adjp=config["adjp"])
     params:
-        contrast = get_contrast,
+        contrast = "{contrast}",
         FC = config["FC"],
         adjp = config["adjp"]
     conda:
@@ -176,7 +180,7 @@ rule permutation:
         permList = "results/diffexp/pairwise/permutationTest/{contrast}.permutation.list.csv",
         histogram = "results/diffexp/pairwise/permutationTest/Histogram.{contrast}.Permutation.Test.pdf"
     params:
-        contrast = get_contrast,
+        contrast = "{contrast}",
         samples = config["omic_meta_data"],
         sample_id = config["sample_id"],
         linear_model = config["linear_model"]
@@ -193,7 +197,7 @@ rule run_glimma:
         ma_plot = "results/diffexp/glimma-plots/{contrast}.ma_plot.html",
         volcano_plot = "results/diffexp/glimma-plots/{contrast}.volcano_plot.html",
     params:
-        contrast = get_contrast,
+        contrast = "{contrast}",
         condition = config["linear_model"],
     conda:
         "../envs/glimma_env.yaml"
@@ -212,4 +216,3 @@ rule run_glimma_mds:
         "../envs/glimma_env.yaml"
     script:
         "../scripts/run_glimma_mds.R"
-

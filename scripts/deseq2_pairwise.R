@@ -49,9 +49,9 @@ Dir <- "results/diffexp/pairwise/"
 plot_cols <- snakemake@config[['meta_columns_to_plot']]
 subset_cols = names(plot_cols)
 
-contrast <- c(Type, snakemake@params[["contrast"]])
-baseline <- contrast[[3]]
-target <- contrast[[2]]
+target <- strsplit(snakemake@params[["contrast"]], "-vs-")[[1]][1]
+baseline <- strsplit(snakemake@params[["contrast"]], "-vs-")[[1]][2]
+contrast <- c(Type, target, baseline)
 
 upCol = "#FF9999"
 downCol = "#99CCFF"
@@ -155,7 +155,7 @@ if (exists("genesToLabel")) {
     geom_hline(yintercept=c(-1,1), linetype="dashed", color="black") +
     geom_label_repel(aes(label=ifelse(Gene %in% genesToLabel, as.character(Gene),'')),box.padding=0.1, point.padding=0.5, segment.color="gray70", show.legend=FALSE) +
     scale_colour_manual(values=colours) +
-    ggtitle(paste(baseline, "vs", target)) +
+    ggtitle(paste(target, "vs", baseline)) +
     xlab("log2(Normalized counts)") +
     ylab("log2(Fold Change)") +
     theme(plot.title = element_text(hjust=0.5))
@@ -164,7 +164,7 @@ if (exists("genesToLabel")) {
     geom_point() +
     geom_hline(yintercept=c(-1,1), linetype="dashed", color="black") +
     scale_colour_manual(values=colours) +
-    ggtitle(paste(baseline, "vs", target)) +
+    ggtitle(paste(target, "vs", baseline)) +
     xlab("log2(Normalized counts)") +
     ylab("log2(Fold Change)") +
     theme(plot.title = element_text(hjust=0.5))

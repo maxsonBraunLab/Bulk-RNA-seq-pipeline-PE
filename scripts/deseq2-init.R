@@ -11,9 +11,9 @@ Type <- snakemake@params[['linear_model']]
 
 contrast <- snakemake@params[['contrast']]
 
-baseline <- contrast[[2]]
+target <- strsplit(as.character(contrast), "-vs-")[[1]][1]
 
-target <- contrast[[1]]
+baseline <- strsplit(as.character(contrast), "-vs-")[[1]][2]
 
 output = snakemake@output[['rds']]
 

@@ -9,9 +9,9 @@ adjp <- snakemake@params[['adjp']]
 
 contrast <- snakemake@params[['contrast']]
 
-baseline <- contrast[[2]]
+target <- strsplit(contrast, "-vs-")[[1]][1]
 
-target <- contrast[[1]]
+baseline <- strsplit(contrast, "-vs-")[[1]][2]
 
 volcano_plot=snakemake@output[['volcano_plot']]
 

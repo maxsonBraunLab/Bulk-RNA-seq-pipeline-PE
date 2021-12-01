@@ -82,6 +82,18 @@ rule index:
     shell:
         """samtools index {input} {output}"""
 
+rule bigwig:
+    input:
+        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam",
+        "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam.bai"
+    output:
+        "samples/bigwig/{sample}.bw"
+    conda:
+        "../envs/deeptools.yaml"
+    threads: 12
+    shell:
+        "bamCoverage -b {input[0]} -o {output} -p {threads} --normalizeUsing CPM --binSize 10"
+
 rule star_statistics:
     input:
         expand("samples/star/{sample}_bam/Log.final.out",sample=SAMPLES)
