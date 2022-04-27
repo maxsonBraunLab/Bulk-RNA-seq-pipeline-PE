@@ -89,12 +89,19 @@ pca:
 diffexp:
   # contrasts to generate group files and perform comparisons
   contrasts:
+  # should be in format: 
+  # - target-vs-baseline
     - GSK-vs-DMSO
     - QUIZ-vs-DMSO
     - COMBO-vs-DMSO
       
   # This option is specified if you would like to run DESeq2 on a subset of your samples (> pairwise comparison)
   LRT:
+  # should be in format:
+  # - condition1
+  # - condition2
+  # - condition3...etc
+  # - baseline
     - GSK
     - COMBO
     - QUIZ
