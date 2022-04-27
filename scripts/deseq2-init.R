@@ -32,7 +32,8 @@ md <- read.delim(file=metadata, sep = "\t", stringsAsFactors = FALSE)
 md <- md[order(md[sampleID]),]
 
 # Read in counts table
-subdata <- read.table(counts, header=TRUE, row.names=1, sep="\t", check.names=FALSE)
+# include check.names=FALSE and stringsAsFactors=FALSE so that input count data is in correct format for rest of script to run
+subdata <- read.table(counts, header=TRUE, row.names=1, sep="\t", check.names=FALSE, stringsAsFactors=FALSE)
 subdata <- subdata[,order(colnames(subdata))]
 
 # Extract only the Types that we want in further analysis & only the PP_ID and Status informative columns

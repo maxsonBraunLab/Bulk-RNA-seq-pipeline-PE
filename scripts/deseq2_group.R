@@ -65,7 +65,8 @@ md <- read.delim(file=metadata, sep = "\t", stringsAsFactors = FALSE)
 md <- md[order(md[sampleID]),]
 
 # Read in counts table
-cts <- read.table(counts, header=TRUE, row.names=1, sep="\t", check.names=F)
+# include check.names=FALSE and stringsAsFactors=FALSE so that input count data is in correct format for rest of script to run
+cts <- read.table(counts, header=TRUE, row.names=1, sep="\t", check.names=FALSE, stringsAsFactors=FALSE)
 cts <- cts[,order(colnames(cts))]
 
 # Put sample IDs as rownames of metadata
@@ -176,7 +177,10 @@ save.image()
 if (length(group)>0) {
   md <- read.delim(file=metadata, sep = "\t", stringsAsFactors = FALSE)
   md <- md[order(md[sampleID]),]
-  cts <- read.table(counts, header=TRUE, row.names=1, sep="\t")
+
+  # include check.names=FALSE and stringsAsFactors=FALSE so that input count data is in correct format for rest of script to run
+  cts <- read.table(counts, header=TRUE, row.names=1, sep="\t", check.names=FALSE, stringsAsFactors=FALSE)
+
   cts <- cts[,order(colnames(cts))]
   md <- md[md[[Type]] %in% group,]
   rownames(md) <- md[[sampleID]]
