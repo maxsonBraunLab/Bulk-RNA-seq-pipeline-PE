@@ -76,6 +76,17 @@ Continue forward if you don't have a [SLURM profile](https://github.com/Snakemak
 
 Download the `slurm` folder from this [repository](https://github.com/gartician/slurm-snakemake-profile) and copy the entire thing to `~/.config/snakemake`. 
 
+Your file configuration for SLURM should be as follows:
+```
+~/.config/snakemake/slurm/<files>
+```
+
+Change the file permissions for the scripts in the `slurm` folder so that they are executable. To do this, run:
+```
+chmod +x ~/.config/snakemake/slurm/slurm*
+```
+
+
 # 5. Run the pipeline
 
 First do a dry-run of snakemake to ensure proper execution before submitting it to the cluster.
