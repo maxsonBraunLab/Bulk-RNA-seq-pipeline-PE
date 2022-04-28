@@ -25,8 +25,8 @@ print("Loading counts table")
 print(countsFile)
 
 ## must be a tsv or txt tab sep file
-
-counts <- read.delim(file=countsFile)
+## include check.names=FALSE so R doesn't replace any characters in colnames with something else
+counts <- read.delim(file=countsFile, check.names=FALSE)
 
 ##----------load anno------------#
 print("Loading annotation table")
