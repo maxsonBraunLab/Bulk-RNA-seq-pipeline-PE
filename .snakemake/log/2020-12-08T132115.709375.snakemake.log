@@ -1,4 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 78 of /home/groups/MaxsonLab/kongg/rna_seq/Bulk-RNA-seq-pipeline-PE/Snakefile:
-Missing input files for rule all:
-results/tables/project-id_STAR_mapping_statistics.txt
