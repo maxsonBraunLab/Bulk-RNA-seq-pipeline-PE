@@ -40,7 +40,7 @@ if(grepl('txt|tsv',annoFile)){
     anno <- read.delim(file=annoFile)
 }
 
-if(strsplit(biotypes, split='\\,')[[1]]!=""){
+if(strsplit(biotypes, split='\\,')[[1]] != "all"){
     anno.sub <- anno[paste(anno$gene_biotype) %in% strsplit(biotypes, split='\\,')[[1]] ,]
     counts.sub <- counts[paste(counts$Genes) %in% unique(paste(anno.sub$external_gene_name)) , ]
 }else{

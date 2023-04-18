@@ -45,7 +45,7 @@ omic_meta_data:
 # Biotypes you would like to include in your gene counts table
 # Example: protein_coding,lincRNA,sRNA,rRNA,snRNA,snoRNA
 biotypes:
-  "protein_coding" ### if you want to keep all biotypes, use ""
+  "protein_coding" ### if you want to keep all biotypes, use "all"
 
 # Unique project identifier which will be concatenated onto your counts table file name.
 project_id:
