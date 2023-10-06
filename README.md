@@ -35,7 +35,7 @@ Pipeline fixes / tailor to Maxson Data
 ```
 # clone this repo to a new working directory
 
-git clone git@github.com:maxsonBraunLab/Bulk-RNA-seq-pipeline-PE.git
+git clone https://github.com/maxsonBraunLab/Bulk-RNA-seq-pipeline-PE.git
 cd Bulk-RNA-seq-pipeline-PE/samples/raw
 
 # symlink your FASTQ files (gzipped) to this directory
