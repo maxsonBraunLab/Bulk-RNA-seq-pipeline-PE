@@ -9,7 +9,7 @@ rule fastp:
         "../envs/fastp.yaml"
     log:
         "logs/fastp/{sample}.fastp.json"
-    threads: 8
+    threads: 4
     shell:
         "fastp -i {input.fwd} -I {input.rev} -o {output.fwd} -O {output.rev} "
         "--detect_adapter_for_pe --thread {threads} -j {log} -h /dev/null"
@@ -55,7 +55,7 @@ rule STAR:
         "samples/star/{sample}_bam/Aligned.sortedByCoord.out.bam",
         "samples/star/{sample}_bam/ReadsPerGene.out.tab",
         "samples/star/{sample}_bam/Log.final.out"
-    threads: 12
+    threads: 8
     params:
         gtf=config["gtf_file"],
         genome_index=config["star_index"]
@@ -90,7 +90,7 @@ rule bigwig:
         "samples/bigwig/{sample}.bw"
     conda:
         "../envs/deeptools.yaml"
-    threads: 12
+    threads: 4
     shell:
         "bamCoverage -b {input[0]} -o {output} -p {threads} --normalizeUsing CPM --binSize 10"
 

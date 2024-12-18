@@ -13,7 +13,7 @@ rule deseq2_init:
         contrast = "{contrast}"
     conda:
         "../envs/permutation.yaml"
-    threads: 4
+    threads: 1
     script:
         "../scripts/deseq2-init.R"
 
@@ -55,7 +55,7 @@ rule deseq2_pairwise:
         gene_names = config["gene_names"]
     conda:
         "../envs/deseq2.yaml"
-    threads: 4
+    threads: 1
     script:
         "../scripts/deseq2_pairwise.R"
 

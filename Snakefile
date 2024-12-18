@@ -3,7 +3,7 @@ __email__ = "estabroj@ohsu.edu"
 __license__ = "MIT"
 
 """Computation Hub omic data processing pipeline"""
-"""Edits by Garth Kong at OHSU"""
+"""Edits by Garth Kong and Thai Nguyen at OHSU"""
 
 
 import datetime
